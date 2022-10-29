@@ -1,23 +1,35 @@
 import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import { AppBar, Button, CircularProgress, Toolbar, Typography } from '@mui/material';
+import HealthcareProfessionalView from './Components/HealthcareProfessionalView'
 import './App.css';
 
 function App() {
+  const pages = ['HealthcareProfessionalView']
+  const [currPage, setCurrPage] = useState(pages[0]);
+  function openPage(page) {
+    setCurrPage(page);
+  }
+  const page_component = {
+    'HealthcareProfessionalView': <HealthcareProfessionalView />,
+  }
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1>
-          Patient Management System
-        </h1>
-        <p>
-          FCS Group 20
-        </p>
-        <ul style={{textAlign:"left"}}>
-            <li>Harman Singh - 2019042</li>
-            <li>Yash Bhargava - 2019289</li>
-            <li>Tarini Sharma - 2019451</li>
-            <li>Aryan Behal - 2019026</li>
-        </ul>
+      <AppBar>
+                <Toolbar>
+                    {pages.map((page) => (
+                        <Button
+                        key={page}
+                        onClick={() => openPage(page)}
+                        sx={{ color: 'white', display: 'block' }}
+                        >
+                        {page}
+                        </Button>
+                    ))}
+                </Toolbar>
+         </AppBar>
+            {page_component[currPage]}
       </header>
     </div>
   );

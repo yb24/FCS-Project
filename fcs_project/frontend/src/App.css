@@ -36,3 +36,50 @@
     transform: rotate(360deg);
   }
 }
+
+/* User View */
+.User-View{
+  background-color: #002244;
+  height: 100%;
+  min-width:300px;
+  padding: 20px;
+  text-align: left;
+ 
+}
+#User-App-Body{
+  margin : -32px;
+  height: calc(100vh - 64px);
+}
+.LayersUser{
+  display: flex;
+  flex-direction: column;
+  padding: 0 32px 0 0;
+  gap: 10px;
+  text-align: left;
+
+}
+.User-View-Button{
+  width: 100%;
+  height: 50px;
+  justify-content: left;
+  color: white !important;
+  justify-content: left !important;
+
+}
+
+.Healthcare-Professional-RightWrapper{
+  margin: 30px;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  text-align: center;
+}
+
+.Upload{
+  margin: 30px;
+}
+
+.ReportsTable{
+  width:95%;
+  height:85%;
+}
