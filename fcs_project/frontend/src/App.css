@@ -1,7 +1,60 @@
 .App {
-  text-align: center;
+  height: calc(100vh - 128px);
+  margin: 64px 0 0 0;
+  padding: 32px 32px;
 }
 
+.App-body {
+  height: calc(100vh - 128px);
+  
+  display: flex;
+  flex-direction: row;
+
+}
+.Input {
+    width: 320px;
+  }
+.Layers {
+  display: flex;
+  flex-direction: column;
+  padding: 0 32px 0 0;
+  
+}
+.Input-Field {
+  margin: 16px 0;
+  display: flex;
+  align-items:flex-end;
+  
+}
+.Input {
+  flex: 1;
+}
+.Button {
+  width: max-content;
+  height: max-content;
+}
+.Selected-Light {
+  margin: 16px 0;
+  padding: 16px;
+  border: solid grey 1px;
+  border-radius: 8px;
+}
+.Report-Button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0 0 0;
+}
+.Loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: calc(100% - 16px);
+  padding: 32px 0px;
+}
+.Map {
+  width: calc(100vw - 64px - 300px);
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -67,6 +120,11 @@
 
 }
 
+.form{
+  height: 100%; 
+  width: 100%; 
+  display: flex;
+}
 .Healthcare-Professional-RightWrapper{
   margin: 30px;
   width: 100%;

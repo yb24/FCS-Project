@@ -1,22 +1,24 @@
-import logo from './logo.svg';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { AppBar, Button, CircularProgress, Toolbar, Typography } from '@mui/material';
 import HealthcareProfessionalView from './Components/HealthcareProfessionalView'
+import PharmacyView from './Components/PharmacyView'
+import InsuranceView from './Components/InsuranceView'
 import './App.css';
 
 function App() {
-  const pages = ['HealthcareProfessionalView']
+  const pages = ['HealthcareProfessionalView', 'PharmacyView', 'InsuranceView']
   const [currPage, setCurrPage] = useState(pages[0]);
   function openPage(page) {
     setCurrPage(page);
   }
   const page_component = {
     'HealthcareProfessionalView': <HealthcareProfessionalView />,
+    'PharmacyView': <PharmacyView />,
+    'InsuranceView': <InsuranceView/>
   }
   return (
     <div className="App">
-      <header className="App-header">
-      <AppBar>
+        <AppBar>
                 <Toolbar>
                     {pages.map((page) => (
                         <Button
@@ -28,9 +30,8 @@ function App() {
                         </Button>
                     ))}
                 </Toolbar>
-         </AppBar>
-            {page_component[currPage]}
-      </header>
+        </AppBar>
+      <div>{page_component[currPage]}</div>
     </div>
   );
 }
