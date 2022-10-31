@@ -1,25 +1,25 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import LoginReg from "./pages/auth/LoginReg";
+import ResetPassword from "./pages/auth/ResetPassword";
+import SendPasswordResetEmail from "./pages/auth/SendPasswordResetEmail";
+import Contact from "./pages/Contact";
+import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
+import Layout from "./pages/Layout";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <h1>
-          Patient Management System
-        </h1>
-        <p>
-          FCS Group 20
-        </p>
-        <ul style={{textAlign:"left"}}>
-            <li>Harman Singh - 2019042</li>
-            <li>Yash Bhargava - 2019289</li>
-            <li>Tarini Sharma - 2019451</li>
-            <li>Aryan Behal - 2019026</li>
-        </ul>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="login" element={<LoginReg />} />
+          </Route>
+          <Route path="*" element={<h1>Error 404 Page not found !!</h1>} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
