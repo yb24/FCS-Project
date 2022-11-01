@@ -1,60 +1,7 @@
 .App {
-  height: calc(100vh - 128px);
-  margin: 64px 0 0 0;
-  padding: 32px 32px;
+  text-align: center;
 }
 
-.App-body {
-  height: calc(100vh - 128px);
-  
-  display: flex;
-  flex-direction: row;
-
-}
-.Input {
-    width: 320px;
-  }
-.Layers {
-  display: flex;
-  flex-direction: column;
-  padding: 0 32px 0 0;
-  
-}
-.Input-Field {
-  margin: 16px 0;
-  display: flex;
-  align-items:flex-end;
-  
-}
-.Input {
-  flex: 1;
-}
-.Button {
-  width: max-content;
-  height: max-content;
-}
-.Selected-Light {
-  margin: 16px 0;
-  padding: 16px;
-  border: solid grey 1px;
-  border-radius: 8px;
-}
-.Report-Button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 16px 0 0 0;
-}
-.Loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: calc(100% - 16px);
-  padding: 32px 0px;
-}
-.Map {
-  width: calc(100vw - 64px - 300px);
-}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -88,56 +35,4 @@
   to {
     transform: rotate(360deg);
   }
-}
-
-/* User View */
-.User-View{
-  background-color: #002244;
-  height: 100%;
-  min-width:300px;
-  padding: 20px;
-  text-align: left;
- 
-}
-#User-App-Body{
-  margin : -32px;
-  height: calc(100vh - 64px);
-}
-.LayersUser{
-  display: flex;
-  flex-direction: column;
-  padding: 0 32px 0 0;
-  gap: 10px;
-  text-align: left;
-
-}
-.User-View-Button{
-  width: 100%;
-  height: 50px;
-  justify-content: left;
-  color: white !important;
-  justify-content: left !important;
-
-}
-
-.form{
-  height: 100%; 
-  width: 100%; 
-  display: flex;
-}
-.Healthcare-Professional-RightWrapper{
-  margin: 30px;
-  width: 100%;
-  height: 100%;
-  justify-content: center;
-  text-align: center;
-}
-
-.Upload{
-  margin: 30px;
-}
-
-.ReportsTable{
-  width:95%;
-  height:85%;
 }
