@@ -1,8 +1,39 @@
 import React, {useState, useEffect} from 'react';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
-
+import axios from 'axios';
 
 function PharmaciesList(){
+
+    const [pharmacies, setPharmacies] = useState([]);
+
+
+    const FetchPharmacies = ()=>{
+
+        //make axios call here
+        axios({
+            method: "GET",
+            url:`${process.env.REACT_APP_BACKEND}/get_all_pharmacy`,
+            data:{
+                token: 'abcdefgh',
+            }
+          }).then((response)=>{
+            const data = response.data
+            console.log(data)
+            setPharmacies(data)
+          }).catch((error) => {
+            if (error.response) {
+              console.log(error.response);
+              }
+          })
+       
+
+    };
+    useEffect(()=>{
+
+        
+        FetchPharmacies();
+
+    },[]);
 
     function pharmaciesFilters() {
         return (
@@ -20,17 +51,12 @@ function PharmaciesList(){
 
     const pharmacies_columns = [
         { field: 'name', headerName: 'Name', width: 300 },
-        { field: 'email_id', headerName: 'Email ID', width:300 },
+        { field: 'email', headerName: 'Email ID', width:300 },
         { field: 'location', headerName: 'Location', width:300 },
         { field: 'description', headerName: 'Description', width:300 },
-        { field: 'contact_details', headerName: 'Contact Details', width:300 },
+        { field: 'contact', headerName: 'Contact Details', width:300 },
       ];
-      const pharmacies = [
-        {'name': 'New medicos', 'email_id': 'newmedicos@gmail.com', 'location':'Rajinder Nagaer, New Delhi', 'description':'10% discount', 'contact_details':'9868919191', 'user_id':400},
-        {'name': '24/7 medicines', 'email_id': 'tsmedicine@gmail.com', 'location':'Rajinder Nagaer, New Delhi', 'description':'10% discount', 'contact_details':'9868419191', 'user_id':401},
-        {'name': 'Pharmpeasy', 'email_id': 'pharmpeasy@gmail.com', 'location':'Rajinder Nagaer, New Delhi', 'description':'10% discounts', 'contact_details':'9868919192', 'user_id':402}
-      ];
-
+      
 
 
     return(
@@ -42,7 +68,7 @@ function PharmaciesList(){
                 columns={pharmacies_columns}
                 pageSize={10}
                 rowsPerPageOptions={[10]}
-                getRowId={row =>  row.user_id}
+                getRowId={row =>  row.id}
                 components={{Toolbar: pharmaciesFilters,}}
             />
 

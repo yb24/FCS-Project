@@ -7,7 +7,7 @@ class React(models.Model):
 
 class UploadRecords(models.Model):
     userID = models.CharField(max_length=30)
-    docLink = models.CharField(max_length=100)
+    docLink = models.ImageField(upload_to='patient_mgmt_backend/uploaded_files')
     docType = models.CharField(max_length=30)
 
 class ShareRecords(models.Model):

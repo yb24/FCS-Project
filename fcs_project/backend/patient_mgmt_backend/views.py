@@ -47,13 +47,18 @@ def delete_upload_records(request):
 
 @api_view(['POST'])
 def insert_upload_records(request):
-    if not verify_user(request.data["token"]):
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    # if not verify_user(request.data["token"]):
+    #     return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    # print(request.data)
+    print(dict(request.data))
+    # print(request.data['docType'])
     serializer = UploadRecordsSerializer(data=request.data)
-    print(request.data)
     if serializer.is_valid():
+        print('isValid')
         serializer.save()
         return Response(data = "Success", status=status.HTTP_201_CREATED)
+    else:
+        print('notValid')
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -72,20 +77,27 @@ def display_user_table(request):
 
 @api_view(['GET'])
 def get_all_healthcare_professionals(request):
-    note = UserTable.objects.filter(role='HealthcareProfessional').values('name', 'email', 'location', 'description', 'contact')
+    note = UserTable.objects.filter(role='HealthcareProfessional').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserTableSerializer(note, many=True)
 
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_all_pharmacy(request):
-    note = UserTable.objects.filter(role='Pharmacy').values('name', 'email', 'location', 'description', 'contact')
+    note = UserTable.objects.filter(role='Pharmacy').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserTableSerializer(note, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_all_insurance_firm(request):
-    note = UserTable.objects.filter(role='InsuranceFirm').values('name', 'email', 'location', 'description', 'contact')
+    note = UserTable.objects.filter(role='InsuranceFirm').values('name', 'email', 'location', 'description', 'contact', 'id')
+    serializer = UserTableSerializer(note, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_all_hospital(request):
+    note = UserTable.objects.filter(role='Hospital').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserTableSerializer(note, many=True)
     return Response(serializer.data)
 

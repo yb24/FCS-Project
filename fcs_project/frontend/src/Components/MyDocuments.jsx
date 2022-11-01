@@ -35,9 +35,7 @@ function MyDocuments(){
     }, [myDocuments])
 
 
-   
-
-
+  
 
     
 
@@ -52,16 +50,42 @@ function MyDocuments(){
 
     const onFileUpload = () => {
     
+        console.log("here")
         const formData = new FormData();
       
+
+        //Send token instead of userID
+        formData.append("userID", '80')
         formData.append(
-          "myFile",
-          selectedFile,
-          selectedFile.name
-        );
-      
+          "docLink",
+          selectedFile);
+        
+          
+        // formData.append("token", "abcd");
+        formData.append("docType", "Prescription");
+        
+        for (var [key, value] of formData.entries()) { 
+            console.log(key, value);
+          }
         console.log(selectedFile);
-        console.log(formData);
+        console.log(...formData);
+        console.log(formData==null)
+
+        axios({
+            method: "POST",
+            url:`${process.env.REACT_APP_BACKEND}/insert_upload_records`,
+            headers: {
+                'content-type': 'multipart/form-data',
+            },
+            data:formData
+          }).then((response)=>{
+            const data = response.data
+            console.log(data)
+          }).catch((error) => {
+            if (error.response) {
+              console.log(error.response);
+              }
+          })
 
         //axios.post("api/uploadfile", formData);
       };
@@ -86,6 +110,8 @@ function MyDocuments(){
      const ShareMyDocument=(report_id, email_id)=>{
 
         if(!report_id || !email_id) return;
+        //make axios call here
+  
         console.log(report_id, email_id)
      }
 
@@ -98,7 +124,7 @@ function MyDocuments(){
             <GridToolbarDensitySelector />
             <GridToolbarExport 
             csvOptions={{
-                fileName: 'All Hospitals',
+                fileName: 'My Documents',
               }}/>
           </GridToolbarContainer>
         );
@@ -161,7 +187,7 @@ function MyDocuments(){
                 <Button variant = "contained" onClick={onFileUpload}>
                   Upload!
                 </Button>
-                {selectedFile?URL.createObjectURL(selectedFile):""}
+                {/* {selectedFile?URL.createObjectURL(selectedFile):""} */}
             </div>
 
 
