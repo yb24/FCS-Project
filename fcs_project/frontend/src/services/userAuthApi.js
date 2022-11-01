@@ -29,9 +29,21 @@ export const userAuthApi = createApi({
             }
         }
     }),
+    profileUser: builder.mutation({
+        query:(user)=>{
+            return{
+                url: 'profile/',
+                method: 'POST',
+                body: user,
+                headers: {
+                    'Content-type': 'application/json',
+                }
+            }
+        }
+    }),
   }),
 })
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useRegisterUserMutation, useLoginUserMutation } = userAuthApi
+export const { useRegisterUserMutation, useLoginUserMutation, useProfileUserMutation } = userAuthApi

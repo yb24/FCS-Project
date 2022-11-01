@@ -48,10 +48,7 @@ const LoginReg = () => {
               <Registration />
             </TabPanel>
           </Box>
-          <Box textAlign='center' sx={{ mt: 2 }}>
-            <ShoppingBag sx={{ color: 'purple', fontSize: 100 }} />
-            <Typography variant='h5' sx={{ fontWeight: 'bold' }}>Geek-Shop</Typography>
-          </Box>
+
         </Card>
       </Grid>
     </Grid>
