@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 import LoginReg from "./pages/auth/LoginReg";
 import ResetPassword from "./pages/auth/ResetPassword";
 import SendPasswordResetEmail from "./pages/auth/SendPasswordResetEmail";
@@ -18,7 +18,7 @@ import SharedDocuments from './Components/SharedDocuments';
 import PaymentsMade from './Components/PaymentsMade';
 import PaymentsReceived from './Components/PaymentsReceived';
 
-import {Routes, Route, useNavigate} from 'react-router-dom';
+
 import './App.css';
 import HealthcareProfessionalView from './Components/HealthcareProfessioanlView';
 import PharmacyView from './Components/PharmacyView';

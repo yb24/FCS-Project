@@ -1,5 +1,6 @@
 from django.urls import path
 from patient_mgmt_backend.views import UserLoginView, UserProfileView, UserRegistrationView
+from .views import *
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('login/', UserLoginView.as_view(), name='login'),
