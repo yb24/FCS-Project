@@ -4,6 +4,7 @@ from django.utils.encoding import smart_str, force_bytes, DjangoUnicodeDecodeErr
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from patient_mgmt_backend.utils import Util
+from .models import *
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
   # We are writing this becoz we need confirm password field in our Registratin Request
@@ -39,3 +40,29 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
   def getProfile(self, email):
     return User.objects.get(email_exact = email)
+
+#added
+class ReactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = React
+        fields = ['id', 'name', 'detail'] 
+
+class UploadRecordsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UploadRecords
+        fields = ['id','userID','docLink','docType']
+
+class ShareRecordsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShareRecords
+        fields = ['id', 'userID','receiverID','docLink','docType']
+
+class PaymentRecordsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentRecords
+        fields = ['id','userID','receiverID','amount','status','Type']
+
+class UserTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTable
+        fields = ['id','email','name','role','address','contact','vAadhar','healthLicense','description','location','image1Path','image2Path','status']
