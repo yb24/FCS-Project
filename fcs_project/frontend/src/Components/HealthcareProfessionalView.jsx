@@ -9,6 +9,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { DataGrid} from "@mui/x-data-grid";
 import '../App.css';
+import axios from "axios"
 
 function HealthcareProfessionalView(){
     const [options, setOptions] = useState(0);
@@ -63,18 +64,87 @@ function HealthcareProfessionalView(){
     const uploadForm = (event) =>{
         if(formChoice == 1)
             {
+                // For inserting record...
+                axios({
+                    method: "POST",
+                    url:`${process.env.REACT_APP_BACKEND}/insert_upload_records`,
+                    data:{
+                        token: 'abcdefgh',
+                        userID: 'aryan19026@iiitd.ac.in',
+                        docLink: 'Link',
+                        docType: 'Prescription',
+                    }
+                  }).then((response)=>{
+                    const data = response.data
+                    console.log(data)
+                  }).catch((error) => {
+                    if (error.response) {
+                      console.log(error.response);
+                      }
+                  })
                 console.log("Submit Form 1")
             }
         if(formChoice == 2)
             {
+                axios({
+                    method: "DELETE",
+                    url:`${process.env.REACT_APP_BACKEND}/delete_upload_records`,
+                    data:{
+                        token: 'abcdefgh',
+                        userID: 'aryan19026@iiitd.ac.in',
+                    }
+                  }).then((response)=>{
+                    const data = response.data
+                    console.log(data)
+                  }).catch((error) => {
+                    if (error.response) {
+                      console.log(error.response);
+                      }
+                  })
                 console.log("Submit Form 2")
             }
         if(formChoice == 3)
             {
+                axios({
+                    method: "POST",
+                    url:`${process.env.REACT_APP_BACKEND}/insert_user_table`,
+                    data:{
+                        email: "simmonscampos@wazzu.com",
+                        name: "Becky Moore",
+                        role: "HealthcareProfessional",
+                        address: "120 Montague Terrace, Maxville, New Mexico, 1789",
+                        contact: 749765635,
+                        vAadhar: 9523670740863534,
+                        healthLicence: "bf578a51-9bdd-46ff-8e5a-9328b388952f",
+                        description: "Aliquip ad ad excepteur ut sunt adipisicing do reprehenderit reprehenderit elit eiusmod anim et eiusmod. Officia ea non tempor esse proident exercitation est velit sunt excepteur do enim. Nulla duis est elit sunt culpa velit quis est ipsum cupidatat ipsum pariatur. Dolore consequat qui anim est exercitation excepteur cillum adipisicing. Officia eu ut eu nulla id eu enim proident ullamco do labore commodo adipisicing. Enim est pariatur occaecat Lorem ex dolore amet pariatur irure proident.\r\n",
+                        location: "103 Caton Avenue, Tedrow, Kentucky, 1023",
+                        image1Path: "drive.google.com/53543534fdsfer324.png",
+                        image2Path: "drive.google.com/4324tret533.jpg",
+                        status: "NotAuthenticated"
+                    }
+                  }).then((response)=>{
+                    const data = response.data
+                    console.log(data)
+                  }).catch((error) => {
+                    if (error.response) {
+                      console.log(error.response);
+                      }
+                  })
                 console.log("Submit Form 3")
             }
         if(formChoice == 4)
         {
+            axios({
+                method: "GET",
+                url:`${process.env.REACT_APP_BACKEND}/get_all_healthcare_professionals`,
+              }).then((response)=>{
+                const data = response.data
+                console.log(data)
+              }).catch((error) => {
+                if (error.response) {
+                  console.log(error.response);
+                  }
+              })
             console.log("Submit Form 4")
         }
     }
@@ -99,6 +169,22 @@ function HealthcareProfessionalView(){
         {
             console.log("got inside loop: ", options)
             const fetchReport = () => {
+
+                axios({
+                    method: "POST",
+                    url:`${process.env.REACT_APP_BACKEND}/note`,
+                    data:{
+                        name: 'Content',
+                        detail: 'this is a trap.'
+                    }
+                  }).then((response)=>{
+                    const data = response.data
+                    console.log(data)
+                  }).catch((error) => {
+                    if (error.response) {
+                      console.log(error.response);
+                      }
+                  })
                 console.log("got inside fetch reports: ", options)
                 setPendingReports([
                         {
