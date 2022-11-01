@@ -6,8 +6,15 @@ import InsuranceFirmsList from './Components/InsuranceFirmsList';
 import PharmaciesList from './Components/PharmaciesList';
 import MyDocuments from './Components/MyDocuments';
 import SharedDocuments from './Components/SharedDocuments';
+import PaymentsMade from './Components/PaymentsMade';
+import PaymentsReceived from './Components/PaymentsReceived';
+
 import {Routes, Route, useNavigate} from 'react-router-dom';
 import './App.css';
+import HealthcareProfessionalView from './Components/HealthcareProfessioanlView';
+import PharmacyView from './Components/PharmacyView';
+import InsuranceFirmView from './Components/InsuranceFirmView';
+import Profile from './Components/Profile';
 
 
 
@@ -34,15 +41,57 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<Home />}/>  
+
+        {/* If user is patient, redirect to url/PatientView and allow only these sub routes */}
         <Route path="PatientView" >
           <Route index element={<PatientView />} /> 
+          <Route path="Profile" element={<Profile />} />
           <Route path="HealthcareProfessionals" element={<HealthcareProfessionalsList />} />
           <Route path="Hospitals" element={<HospitalsList />} />
           <Route path="Pharmacies" element={<PharmaciesList />} />
           <Route path="InsuranceFirms" element={<InsuranceFirmsList />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
-        </Route>     
+          <Route path="PaymentsMade" element={<PaymentsMade />} />
+          <Route path="PaymentsReceived" element={<PaymentsReceived />} />
+        </Route>    
+
+        {/* User is Healthcare Professional */}
+        <Route path="HealthcareProfessioanlView" >
+          <Route index element={<HealthcareProfessionalView />} /> 
+          <Route path="Profile" element={<Profile />} />
+          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="SharedDocuments" element={<SharedDocuments />} />
+        </Route>  
+
+
+        {/* User is Hospital */}
+        <Route path="HospitalView" >
+          <Route index element={<HealthcareProfessionalView />} /> 
+          <Route path="Profile" element={<Profile />} />
+          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="SharedDocuments" element={<SharedDocuments />} />
+        </Route>  
+
+
+      {/* User is Pharmacy */}
+        <Route path="PharmacyView" >
+          <Route index element={<PharmacyView />} /> 
+          <Route path="Profile" element={<Profile />} />
+          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="SharedDocuments" element={<SharedDocuments />} />
+          <Route path="PaymentsReceived" element={<PaymentsReceived />} />
+        </Route>  
+
+
+      {/* User is Insurance Firm */}
+        <Route path="InsuranceFirmView" >
+          <Route index element={<InsuranceFirmView />} /> 
+          <Route path="Profile" element={<Profile />} />
+          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="SharedDocuments" element={<SharedDocuments />} />
+          <Route path="PaymentsMade" element={<PaymentsMade />} />
+        </Route>   
       </Routes>
     </div>
   );

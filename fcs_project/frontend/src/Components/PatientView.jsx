@@ -8,6 +8,10 @@ function PatientView(){
     const navigate = useNavigate();
 
 
+    const navigateToProfile = () => {
+        // navigate to Healthcare professionals
+        navigate('Profile');
+    };
     const navigateToHealthCareProfessionals = () => {
         // navigate to Healthcare professionals
         navigate('HealthcareProfessionals');
@@ -32,6 +36,14 @@ function PatientView(){
         // navigate to Shared Documents
         navigate('SharedDocuments');
     };
+    const navigateToPaymentsMade = () => {
+        // navigate to Shared Documents
+        navigate('PaymentsMade');
+    };
+    const navigateToPaymentsReceived = () => {
+        // navigate to Shared Documents
+        navigate('PaymentsReceived');
+    };
 
     return(
         <div style={{margin:10, justifyContent:'center'}}>
@@ -41,8 +53,9 @@ function PatientView(){
                 justifyContent="center"
                 spacing={10}
             >
+
                 <Grid item xs={6} md={8}>
-                    <Button variant="contained" onClick={navigateToHealthCareProfessionals}>Profile</Button>
+                    <Button variant="contained" onClick={navigateToProfile}>Profile</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToHealthCareProfessionals}>Healthcare Professionals</Button>
@@ -61,6 +74,12 @@ function PatientView(){
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToSharedDocuments}>Documents Shared With Me</Button>
+                </Grid>
+                <Grid item xs={6} md={8}>
+                    <Button variant="contained" onClick={navigateToPaymentsMade}>Payments Made/To Be Made</Button>
+                </Grid>
+                <Grid item xs={6} md={8}>
+                    <Button variant="contained" onClick={navigateToPaymentsReceived}>Payments Received</Button>
                 </Grid>
             </Grid>
 
