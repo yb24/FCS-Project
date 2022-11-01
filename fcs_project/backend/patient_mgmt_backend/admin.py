@@ -1,5 +1,5 @@
 from django.contrib import admin
-from account.models import User
+from patient_mgmt_backend.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class UserModelAdmin(BaseUserAdmin):

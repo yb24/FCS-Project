@@ -1,7 +1,7 @@
 starting at directory iiitd@fcs01:~/FCS-Project/fcs_project/
 For running backend:
 python -m venv myenv
-myenv\Scripts\activate
+myenv\Scripts\activate [source myenv/bin/activate]
 cd backend
 pip install -r requirements.txt
 python manage.py makemigrations
