@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-o$p2-s2mjzvq+d(mt6&nyy%=g%)bnt_x8x^=tfv3imuo_te%)m
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['192.168.3.38']
 CORS_ORIGIN_ALLOW_ALL=True
 
 
@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'django_extensions',
+    'sslserver',
     'rest_framework',
     'rest_framework_simplejwt',
     'patient_mgmt_backend',
@@ -130,6 +132,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = 'static/'
 
 # Default primary key field type
