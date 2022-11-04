@@ -24,10 +24,11 @@ function MyDocuments(){
 
     const FetchMyDocuments =()=>{
       axios({
-        method: "GET",
+        method: "POST",
         url:`${process.env.REACT_APP_BACKEND}/display_upload_records`,
         data:{
             token: access_token,
+            userID: userID,
         }
       }).then((response)=>{
         const data = response.data

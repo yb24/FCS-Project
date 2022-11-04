@@ -120,11 +120,12 @@ class UploadRecords(models.Model):
 
 
 class PaymentRecords(models.Model):
-    userID = models.CharField(max_length=30)
-    receiverID = models.CharField(max_length=30)
+    #The Patient is payer in case of pharmacy [We will get Email for this guy from frontend]. Insurance company is payer in Insurance view
+    payerID = models.CharField(max_length=30) 
+    receiverEmail = models.CharField(max_length=30) #
     amount = models.FloatField()
     status = models.CharField(max_length=30)
-    Type = models.CharField(max_length=30)
+
 
 class ShareRecords(models.Model):
     userID = models.CharField(max_length=30)

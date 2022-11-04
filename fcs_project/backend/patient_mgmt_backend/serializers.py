@@ -60,7 +60,7 @@ class ShareRecordsSerializer(serializers.ModelSerializer):
 class PaymentRecordsSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentRecords
-        fields = ['id','userID','receiverID','amount','status','Type']
+        fields = ['id','payerID','receiverEmail','amount','status']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

@@ -20,9 +20,13 @@ function PharmacyView(){
         // navigate to Shared Documents
         navigate('SharedDocuments');
     };
-    const navigateToPaymentsReceived = () => {
+    const navigateToMakeBill = () => {
         // navigate to Shared Documents
-        navigate('PaymentsReceived');
+        navigate('MakeBill');
+    };
+    const navigateToAllPayments= () => {
+        // navigate to Shared Documents
+        navigate('AllPayments');
     };
 
 
@@ -40,12 +44,17 @@ function PharmacyView(){
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToMyDocuments}>My Documents</Button>
                 </Grid>
+               
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToSharedDocuments}>Documents Shared With Me</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
-                    <Button variant="contained" onClick={navigateToPaymentsReceived}>Payments Received</Button>
+                    <Button variant="contained" onClick={navigateToMakeBill}>Make Bill</Button>
                 </Grid>
+                <Grid item xs={6} md={8}>
+                    <Button variant="contained" onClick={navigateToAllPayments}>All Payments</Button>
+                </Grid>
+            
                 
             </Grid>
 

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Grid, Button} from '@mui/material';
 import {Routes, Route, useNavigate, Outlet} from 'react-router-dom';
-import HealthcareProfessionalsList from './HealthcareProfessionalsList';
+
 
 function PatientView(){
 
@@ -36,13 +36,13 @@ function PatientView(){
         // navigate to Shared Documents
         navigate('SharedDocuments');
     };
-    const navigateToPaymentsMade = () => {
+    const navigateToPaymentsToBeMade = () => {
         // navigate to Shared Documents
-        navigate('PaymentsMade');
+        navigate('PaymentsToBeMade');
     };
-    const navigateToPaymentsReceived = () => {
+    const navigateToAllPayments= () => {
         // navigate to Shared Documents
-        navigate('PaymentsReceived');
+        navigate('AllPayments');
     };
 
     return(
@@ -76,10 +76,10 @@ function PatientView(){
                     <Button variant="contained" onClick={navigateToSharedDocuments}>Documents Shared With Me</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
-                    <Button variant="contained" onClick={navigateToPaymentsMade}>Payments Made/To Be Made</Button>
+                    <Button variant="contained" onClick={navigateToPaymentsToBeMade}>Payments To Be Made</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
-                    <Button variant="contained" onClick={navigateToPaymentsReceived}>Payments Received</Button>
+                    <Button variant="contained" onClick={navigateToAllPayments}>All Payments</Button>
                 </Grid>
             </Grid>
 

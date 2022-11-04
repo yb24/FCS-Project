@@ -9,14 +9,15 @@ import Layout from "./pages/Layout";
 
 import logo from './logo.svg';
 import PatientView from './Components/PatientView';
+import MakeBill from "./Components/MakeBill";
 import HealthcareProfessionalsList from './Components/HealthcareProfessionalsList';
 import HospitalsList from './Components/HospitalsList';
 import InsuranceFirmsList from './Components/InsuranceFirmsList';
 import PharmaciesList from './Components/PharmaciesList';
 import MyDocuments from './Components/MyDocuments';
 import SharedDocuments from './Components/SharedDocuments';
-import PaymentsMade from './Components/PaymentsMade';
-import PaymentsReceived from './Components/PaymentsReceived';
+import PaymentsToBeMade from "./Components/PaymentsToBeMade";
+import AllPayments from "./Components/AllPayments";
 
 
 import './App.css';
@@ -45,8 +46,8 @@ function App() {
           <Route path="InsuranceFirms" element={<InsuranceFirmsList />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
-          <Route path="PaymentsMade" element={<PaymentsMade />} />
-          <Route path="PaymentsReceived" element={<PaymentsReceived />} />
+          <Route path="PaymentsToBeMade" element={<PaymentsToBeMade />} />
+          <Route path="AllPayments" element={<AllPayments />} />
         </Route>    
 
         {/* User is Healthcare Professional */}
@@ -73,7 +74,8 @@ function App() {
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
-          <Route path="PaymentsReceived" element={<PaymentsReceived />} />
+          <Route path="MakeBill" element={<MakeBill />} />
+          <Route path="AllPayments" element={<AllPayments />} />
         </Route>  
 
 
@@ -83,7 +85,9 @@ function App() {
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
-          <Route path="PaymentsMade" element={<PaymentsMade />} />
+          <Route path="MakeBill" element={<MakeBill />} />
+          <Route path="PaymentsToBeMade" element={<PaymentsToBeMade />} />
+          <Route path="AllPayments" element={<AllPayments />} />
         </Route>   
 
         </Routes>

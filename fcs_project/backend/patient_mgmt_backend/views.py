@@ -10,6 +10,7 @@ from patient_mgmt_backend.models import User
 from rest_framework.decorators import api_view
 from .serializers import *
 from .models import *
+from django.db.models import Q
 
 # Generate Token Manually
 def get_tokens_for_user(user):
@@ -100,9 +101,9 @@ def delete_upload_records(request):
     except UploadRecords.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def display_upload_records(request):
-    note = UploadRecords.objects.all()
+    note = UploadRecords.objects.filter(userID=request.data["userID"])
     serializer = UploadRecordsSerializer(note, many=True)
     return Response(serializer.data)
 
@@ -130,7 +131,16 @@ def insert_user_table(request):
         return Response(data = "Success", status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+def display_unmade_pharmacy_bills(request):
+    # filter by document type and then filter only unmade bills
+    # Tables involved: uploadRecords, PaymentRecords
+    return "success"
 
+@api_view(['POST'])
+def display_unmade_insurance_firm_bills(request):
+    # filter by document type and then filter only unmade bills
+    return "success"
 
 @api_view(['GET'])
 def display_user_table(request):
@@ -197,6 +207,89 @@ def display_shared_documents(request):
         new_rec['doc'] = records['docLink']
         new_rec['shared_by'] = User.objects.filter(id=records['userID']).values_list('email', flat=True)[0]
         new_rec['billMade'] = records['billMade']
+        return_records.append(new_rec) 
+    return Response(data = return_records, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def display_unmade_bills(request):
+    user_email = User.objects.filter(id=request.data['userID']).values_list('email', flat=True)
+    if request.data['role'] == "PH":
+        shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType = "prescription", billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade')
+        return_records = []
+        for records in list(shared_records_list):
+            new_rec = dict()
+            new_rec['id'] = records['id']
+            new_rec['type'] = records['docType']
+            new_rec['doc'] = records['docLink']
+            new_rec['sharedBy'] = User.objects.filter(id=records['userID']).values_list('email', flat=True)[0]
+            new_rec['billMade'] = records['billMade']
+            return_records.append(new_rec) 
+        return Response(data = return_records, status=status.HTTP_201_CREATED)
+    elif request.data['role'] == "IF":
+        shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType__in = ["discharge_summary", "bill"], billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade')
+        return_records = []
+        for records in list(shared_records_list):
+            new_rec = dict()
+            new_rec['id'] = records['id']
+            new_rec['type'] = records['docType']
+            new_rec['doc'] = records['docLink']
+            new_rec['sharedBy'] = User.objects.filter(id=records['userID']).values_list('email', flat=True)[0]
+            new_rec['billMade'] = records['billMade']
+            return_records.append(new_rec) 
+        return Response(data = return_records, status=status.HTTP_201_CREATED)
+    else:
+        return Response(data = "Incorrect Role", status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def make_bill(request):
+    updateRecord = ShareRecords.objects.get(id = request.data['sharedRecordID'])
+    updateRecord.billMade = "Yes"
+    updateRecord.save(update_fields=['billMade'])
+    payerID = ""
+    receiverEmail = ""
+    amount = request.data['amount']
+    status = "Unpaid"
+    if request.data['role'] == 'IF':
+        payerID = request.data['userID']
+        receiverEmail = request.data['sharedByEmail']
+    elif request.data['role'] == 'PH':
+        payerID = User.objects.filter(email=request.data['sharedByEmail']).values_list('id', flat=True)[0]
+        receiverEmail = User.objects.filter(id=request.data['userID']).values_list('email', flat=True)[0]
+    else:
+        return Response(data = "Incorrect Role", status=status.HTTP_400_BAD_REQUEST)
+    record = {"payerID":payerID, "receiverEmail":receiverEmail, "status":status, "amount":amount}
+    serializer = PaymentRecordsSerializer(data=record)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(data = "Success")
+
+
+@api_view(['POST'])
+def display_payments_to_be_made(request):
+    records = list(PaymentRecords.objects.filter(status = "Unpaid", payerID = request.data["userID"]).values('id', 'receiverEmail', 'amount','status'))
+    return Response(data = records, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def make_payment(request):
+    payment = PaymentRecords.objects.get(id = request.data['paymentID'])
+    payment.status = "Paid"
+    payment.save(update_fields=['status'])
+    return Response(data = "Success")
+
+@api_view(['POST'])
+def display_all_payment_records(request):
+    receiverEmail = User.objects.filter(id=request.data['userID']).values_list('email', flat=True)[0]
+    print(receiverEmail)
+    payment_records = list(PaymentRecords.objects.filter(Q(payerID = request.data["userID"]) | Q(receiverEmail = receiverEmail)).values('id', 'payerID', 'receiverEmail', 'amount','status'))
+    return_records = []
+    print(payment_records)
+    for records in payment_records:
+        new_rec = dict()
+        new_rec['id'] = records['id']
+        new_rec['payerEmail'] = User.objects.filter(id=records['payerID']).values_list('email', flat=True)[0]
+        new_rec['receiverEmail'] = records['receiverEmail']
+        new_rec['amount'] = records['amount']
+        new_rec['status'] = records['status']
         return_records.append(new_rec) 
     return Response(data = return_records, status=status.HTTP_201_CREATED)
 

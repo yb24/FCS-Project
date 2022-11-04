@@ -20,9 +20,13 @@ function InsuranceFirmView(){
         // navigate to Shared Documents
         navigate('SharedDocuments');
     };
-    const navigateToPaymentsMade = () => {
+    const navigateToPaymentsToBeMade = () => {
         // navigate to Shared Documents
-        navigate('PaymentsMade');
+        navigate('PaymentsToBeMade');
+    };
+    const navigateToMakeBill = () => {
+        // navigate to Shared Documents
+        navigate('MakeBill');
     };
 
 
@@ -43,9 +47,14 @@ function InsuranceFirmView(){
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToSharedDocuments}>Documents Shared With Me</Button>
+                    
                 </Grid>
                 <Grid item xs={6} md={8}>
-                    <Button variant="contained" onClick={navigateToPaymentsMade}>Payments Made/To Be Made</Button>
+                    <Button variant="contained" onClick={navigateToMakeBill}>Make Bill</Button>
+                    
+                </Grid>
+                <Grid item xs={6} md={8}>
+                    <Button variant="contained" onClick={navigateToPaymentsToBeMade}>Payments To Be Made</Button>
                 </Grid>
                 
             </Grid>

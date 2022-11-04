@@ -2,10 +2,10 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {Button, InputLabel, MenuItem, FormControl, Select, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField} from '@mui/material';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
+import { getToken } from '../services/localStorageService';
 
 
-
-function PaymentsMade(){
+function PaymentsToBeMade(){
 
 
     const [payments, setPayments] = useState([]);
@@ -13,21 +13,35 @@ function PaymentsMade(){
     const [selectionModel, setSelectionModel] = useState([]);
     const [showDialog, setShowDialog] = useState(false);
     const [open, setOpen] = useState(false);
-    const [email, setEmail] = useState('');
+    let {access_token, refresh_token} = getToken()
+    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
+    userID = userID['user_id'] 
 
     const FetchPayments  =()=>{
 
-        setPayments([
-            {'email':'harman.iiit@gmail.com', 'amount':'40', 'status':'Not Paid', 'id':101},
-           
-        ])
+      axios({
+        method: "POST",
+        url:`${process.env.REACT_APP_BACKEND}/display_payments_to_be_made`,
+        data:{
+            token: access_token,
+            userID: userID
+        }
+      }).then((response)=>{
+        const data = response.data
+        console.log(data)
+        setPayments(data)
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          }
+      })
     }
 
     useEffect(()=>{
 
         FetchPayments()
         
-    }, [payments])
+    }, [])
 
 
 
@@ -48,11 +62,12 @@ function PaymentsMade(){
 
     
      const getEmailIDandAmount=(id)=>{
-
+        if(!id)return [0,0];
+        console.log("ho raha hai")
         for(var i=0; i<payments.length; i++){
 
             if(payments[i]['id']===id){
-                return [payments[i]['email'], payments[i]['amount']]
+                return [payments[i]['receiverEmail'], payments[i]['amount']]
             }
         }
         
@@ -60,8 +75,24 @@ function PaymentsMade(){
 
 
      const MakePayment=(id)=>{
-
-        //API call to make status 'Paid'
+        // id is payment_id
+        //API call to make status in payment table 'Paid'
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/make_payment`,
+          data:{
+              token: access_token,
+              paymentID: id
+          }
+        }).then((response)=>{
+          const data = response.data
+          console.log(data)
+          FetchPayments()
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response);
+            }
+        })
         return
      }
 
@@ -82,7 +113,7 @@ function PaymentsMade(){
 
 
       const paymentsColumns = [
-        { field: 'email', headerName: 'Email ID of Receiver', width: 300 },
+        { field: 'receiverEmail', headerName: 'Email ID of Receiver', width: 300 },
         { field: 'amount', headerName: 'Bill Amount', width:300 },
         { field: 'status', headerName: 'Status', width:300 },
       ];
@@ -133,7 +164,7 @@ function PaymentsMade(){
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={()=>{MakePayment(selectionModel[0]);handleClose()}}>Pay</Button>
+              <Button onClick={()=>{handleClose(); MakePayment(selectionModel[0])}}>Pay</Button>
             </DialogActions>
           </Dialog>
         </div>):""}
@@ -144,4 +175,4 @@ function PaymentsMade(){
 }
 
 
-export default PaymentsMade;
+export default PaymentsToBeMade;
