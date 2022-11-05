@@ -13,6 +13,10 @@ function PaymentsToBeMade(){
     const [selectionModel, setSelectionModel] = useState([]);
     const [showDialog, setShowDialog] = useState(false);
     const [open, setOpen] = useState(false);
+    const [showOtpInput, setShowOtpInput] = useState(false);
+    const [otp, setOtp] = useState(null);
+
+
     let {access_token, refresh_token} = getToken()
     let userID = JSON.parse(window.atob(access_token.split('.')[1]))
     userID = userID['user_id'] 
@@ -73,6 +77,40 @@ function PaymentsToBeMade(){
         
      }
 
+     
+
+     const handlePayButton=()=>{
+      if(showOtpInput){
+        MakePayment(selectionModel[0]);
+        handleClose(); 
+        setShowOtpInput(false);
+        setOtp(null);
+      }
+      else{
+        GenerateOtp();
+      }
+     }
+
+
+     const GenerateOtp=()=>{
+      setShowOtpInput(true);
+      axios({
+        method: "POST",
+        url:`${process.env.REACT_APP_BACKEND}/generate_otp`,
+        data:{
+            token: access_token,
+            userID: userID
+        }
+      }).then((response)=>{
+        const data = response.data
+        console.log(data)
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          }
+      })
+      return true;
+     }
 
      const MakePayment=(id)=>{
         // id is payment_id
@@ -82,7 +120,9 @@ function PaymentsToBeMade(){
           url:`${process.env.REACT_APP_BACKEND}/make_payment`,
           data:{
               token: access_token,
-              paymentID: id
+              userID: userID,
+              paymentID: id,
+              otp : otp
           }
         }).then((response)=>{
           const data = response.data
@@ -156,15 +196,28 @@ function PaymentsToBeMade(){
             <DialogTitle>Make Payment</DialogTitle>
             <DialogContent>
               <DialogContentText>
-               Paying to : {getEmailIDandAmount(selectionModel[0])[0]}
+               {/* Paying to : {getEmailIDandAmount(selectionModel[0])[0]}
                <br></br>
-               Amount: {getEmailIDandAmount(selectionModel[0])[1]}
+               Amount: {getEmailIDandAmount(selectionModel[0])[1]} */}
+               {showOtpInput?"Enter OTP":""}
               </DialogContentText>
+              {showOtpInput?
+                <TextField
+                autoFocus
+                margin="dense"
+                id="name"
+                label="Enter OTP"
+                fullWidth
+                variant="standard"
+                onChange={(e)=>setOtp(e.target.value)}
+              />
+               :""}
+               
               
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={()=>{handleClose(); MakePayment(selectionModel[0])}}>Pay</Button>
+              <Button onClick={handlePayButton}>{showOtpInput?"Pay":"Generate OTP"}</Button>
             </DialogActions>
           </Dialog>
         </div>):""}

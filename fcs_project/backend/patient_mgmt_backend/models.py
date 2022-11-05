@@ -134,3 +134,8 @@ class ShareRecords(models.Model):
     billMade = models.CharField(max_length=30)
     docLink = models.CharField(max_length=100)
     docType = models.CharField(max_length=30)
+
+class OtpTable(models.Model):
+    userID = models.CharField(max_length=30)
+    otp = models.CharField(max_length=30)
+    timeStamp = models.CharField(max_length=100)

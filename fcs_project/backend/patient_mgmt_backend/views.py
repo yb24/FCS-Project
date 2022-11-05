@@ -11,6 +11,10 @@ from rest_framework.decorators import api_view
 from .serializers import *
 from .models import *
 from django.db.models import Q
+import math
+import random
+import smtplib
+import time
 
 # Generate Token Manually
 def get_tokens_for_user(user):
@@ -271,6 +275,21 @@ def display_payments_to_be_made(request):
 
 @api_view(['POST'])
 def make_payment(request):
+    # check 
+    #   if OTP exists for the UserID. IF NO, return fail.
+    #           Check if otp supplied matches in OtpTable. 
+    #                   If no, return failure, 
+    #                   If yes, check if otp timestamp within 120 sec. 
+    #                       If No return fail.
+    #   Else delete the otp entry from OtpTable. 
+    otp = str(request.data['otp'])
+    userID = request.data['userID']
+    otp_record = OtpTable.objects.get(userID=userID)
+    if not otp_record:
+        return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
+    OtpTable.objects.filter(userID=userID).delete()
+    if otp_record.otp != otp or float(otp_record.timeStamp) < time.time() - 120:
+        return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
     payment = PaymentRecords.objects.get(id = request.data['paymentID'])
     payment.status = "Paid"
     payment.save(update_fields=['status'])
@@ -292,6 +311,35 @@ def display_all_payment_records(request):
         new_rec['status'] = records['status']
         return_records.append(new_rec) 
     return Response(data = return_records, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def generate_otp(request):
+    receiverEmail = User.objects.filter(id=request.data['userID']).values_list('email', flat=True)[0]
+    digits = "0123456789"
+    OTP = ""
+    for i in range(6):
+        OTP += digits[math.floor(random.random()*10)]
+    otp = OTP + " is your OTP"
+    msg = 'Subject: {}\n\n{}'.format("Generated OTP for payment", otp)
+
+    s = smtplib.SMTP("smtp.gmail.com", 587)
+    s.starttls()
+    s.login("otp123authenticator@gmail.com", "fqriotdtdzkuaxcb")
+    s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
+    record = {'userID': request.data['userID'], 'otp': OTP, 'timeStamp': str(time.time())}
+    try:
+        existing_otp_record = OtpTable.objects.get(userID=request.data['userID'])
+        existing_otp_record.otp = OTP
+        existing_otp_record.timeStamp = str(time.time())
+        existing_otp_record.save(update_fields=['otp', 'timeStamp'])
+        return Response(data = "Success", status=status.HTTP_201_CREATED)
+    except:
+        serializer = OtpTableSerializer(data=record)
+        if serializer.is_valid():
+            print('isValid')
+            serializer.save()
+            return Response(data = "Success", status=status.HTTP_201_CREATED)
+    return Response(data = "Success")
 
 def verify_user(token):
     return True

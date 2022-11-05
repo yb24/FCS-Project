@@ -22,5 +22,6 @@ urlpatterns = [
     path('make_bill', make_bill),
     path('display_payments_to_be_made', display_payments_to_be_made),
     path('make_payment', make_payment),
-    path('display_all_payment_records', display_all_payment_records)
+    path('display_all_payment_records', display_all_payment_records),
+    path('generate_otp', generate_otp),
 ]

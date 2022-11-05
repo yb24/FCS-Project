@@ -67,3 +67,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id','email','name','role','address','contact','vAadhar','healthLicense','description','location','image1Path','image2Path','status']
         
+class OtpTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OtpTable
+        fields = ['id','userID','otp','timeStamp']
