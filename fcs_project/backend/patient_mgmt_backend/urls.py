@@ -11,7 +11,6 @@ urlpatterns = [
     path('insert_upload_records', insert_upload_records),
     path('delete_upload_records', delete_upload_records),
     path('insert_user_table', insert_user_table),
-    path('display_user_table',display_user_table),
     path('get_all_healthcare_professionals', get_all_healthcare_professionals),
     path('get_all_pharmacy', get_all_pharmacy),
     path('get_all_insurance_firm', get_all_insurance_firm),
@@ -26,4 +25,6 @@ urlpatterns = [
     path('display_all_payment_records', display_all_payment_records),
     path('generate_otp', generate_otp),
     path('generate_otp_registration', generate_otp_registration),
+    path('request_documents',request_documents),
+    path('display_pending_document_requests', display_pending_document_requests),
 ]

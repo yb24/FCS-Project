@@ -5,19 +5,22 @@ import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsBu
 import { getToken } from '../services/localStorageService';
 
 
-function MyDocuments(){
+function MyDocumentsWithRequests(){
 
 
     const [myDocuments, setMyDocuments] = useState([])
+    const [documentRequests, setDocumentRequests] = useState([])
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [type, setType] = useState('');
+
     let {access_token, refresh_token} = getToken()
-    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
+    let userID = access_token?JSON.parse(window.atob(access_token.split('.')[1])):""
     userID = userID['user_id'] 
     
-
+    //For document
     const [selectionModel, setSelectionModel] = useState([]);
+    const [selectionModelRequest, setSelectionModelRequest] = useState([])
     const [showDialog, setShowDialog] = useState(false);
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState('')
@@ -40,8 +43,30 @@ function MyDocuments(){
       })
     }
 
+    const FetchDocumentRequests =()=>{
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/display_pending_document_requests`,
+          data:{
+              token: access_token,
+          }
+        }).then((response)=>{
+          const data = response.data
+          console.log(data)
+          setDocumentRequests(data)
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response);
+            }
+        })
+      }
+
     useEffect(()=>{
         FetchMyDocuments()
+    }, [])
+
+    useEffect(()=>{
+        FetchDocumentRequests()
     }, [])
 
     const handleDeleteRecord = (report_id) => {
@@ -154,7 +179,7 @@ function MyDocuments(){
         handleClickOpen();
      }
 
-     const ShareMyDocument=(reportID, emailID)=>{
+     const ShareMyDocument=(reportID, emailID, requestID)=>{
 
       if(!reportID || !emailID) return;
       //make axios call here
@@ -166,10 +191,12 @@ function MyDocuments(){
               token: access_token,
               reportID: reportID,
               emailID : emailID,
-              requestID: ''
+              requestID: requestID
           }
+
         }).then((response)=>{
           console.log(response)
+          FetchDocumentRequests();
         }).catch((error) => {
           if (error.response) {
             console.log(error.response);
@@ -199,6 +226,12 @@ function MyDocuments(){
         { field: 'docType', headerName: 'Type of Document', width: 300 },
         { field: 'docLink', headerName: 'Document', width:300 },
       ];
+      const documentRequestColumns = [
+        {field: 'name', headerName: "Name", width:300},
+        { field: 'email', headerName: 'Email ID', width: 300 },
+        { field: 'type', headerName: 'Type of Document', width:300 },
+        { field: 'date', headerName: 'Date', width:300 },
+      ];
 
 
 
@@ -221,9 +254,7 @@ function MyDocuments(){
                 selectionModel={selectionModel}
  
             />
-            <Button variant = "contained" onClick={()=>handleDialog(selectionModel)}>
-                  Share Document
-            </Button>
+           
 
         </div>
         <br></br>
@@ -255,6 +286,31 @@ function MyDocuments(){
                   Delete!
                 </Button>
             </div>
+    
+            <br></br>
+            <br></br>
+           <div style={{ height: 300, width: '100%' }} >
+         Request List
+            <DataGrid 
+                rows={documentRequests}
+                columns={documentRequestColumns}
+                pageSize={10}
+                rowsPerPageOptions={[10]}
+                getRowId={row =>  row.id}
+                components={{Toolbar: MyDocumentsFilters,}}
+           
+                onSelectionModelChange={(newSelection) => {
+                setSelectionModelRequest(newSelection);
+                }}
+                selectionModel={selectionModelRequest}
+ 
+            />
+            <Button variant = "contained" onClick={()=>handleDialog(selectionModel)}>
+                  Share Document
+            </Button>
+
+        </div>
+  
 
             {
         showDialog?(
@@ -278,7 +334,7 @@ function MyDocuments(){
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={()=>{ShareMyDocument(selectionModel[0], email);handleClose()}}>Share</Button>
+              <Button onClick={()=>{ShareMyDocument(selectionModel[0], email, selectionModelRequest[0]?selectionModelRequest[0]:"");handleClose()}}>Share</Button>
             </DialogActions>
           </Dialog>
         </div>):""}
@@ -288,4 +344,4 @@ function MyDocuments(){
 }
 
 
-export default MyDocuments;
+export default MyDocumentsWithRequests;

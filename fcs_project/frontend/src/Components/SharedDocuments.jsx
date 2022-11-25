@@ -15,7 +15,6 @@ function SharedDocuments(){
             url:`${process.env.REACT_APP_BACKEND}/display_shared_documents`,
             data:{
                 token: access_token,
-                userID:userID,
             }
           }).then((response)=>{
             console.log(response)

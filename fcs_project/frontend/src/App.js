@@ -20,11 +20,14 @@ import PaymentsToBeMade from "./Components/PaymentsToBeMade";
 import AllPayments from "./Components/AllPayments";
 
 
+
 import './App.css';
 import HealthcareProfessionalView from './Components/HealthcareProfessioanlView';
 import PharmacyView from './Components/PharmacyView';
 import InsuranceFirmView from './Components/InsuranceFirmView';
 import Profile from './Components/Profile';
+import MyDocumentsWithRequests from "./Components/MyDocumentsWithRequests";
+import RequestDocuments from "./Components/RequestDocuments";
 
 function App() {
   return (
@@ -45,6 +48,7 @@ function App() {
           <Route path="Pharmacies" element={<PharmaciesList />} />
           <Route path="InsuranceFirms" element={<InsuranceFirmsList />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="RequestDocuments" element={<RequestDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
           <Route path="PaymentsToBeMade" element={<PaymentsToBeMade />} />
           <Route path="AllPayments" element={<AllPayments />} />
@@ -54,7 +58,7 @@ function App() {
         <Route path="HealthcareProfessioanlView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
-          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="MyDocuments" element={<MyDocumentsWithRequests />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
         </Route>  
 
@@ -63,7 +67,7 @@ function App() {
         <Route path="HospitalView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
-          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="MyDocuments" element={<MyDocumentsWithRequests />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
         </Route>  
 

@@ -19,7 +19,6 @@ function AllPayments(){
             url:`${process.env.REACT_APP_BACKEND}/display_all_payment_records`,
             data:{
                 token: access_token,
-                userID: userID,
             }
           }).then((response)=>{
             const data = response.data

@@ -24,9 +24,7 @@ function MakeBill(){
         method: "POST",
         url:`${process.env.REACT_APP_BACKEND}/display_unmade_bills`,
         data:{
-            token: access_token,
-            userID: userID,
-            role: 'PH'
+            token: access_token
         }
       }).then((response)=>{
         const data = response.data
@@ -83,7 +81,7 @@ function MakeBill(){
         if(!id || !sharedByEmail || !billAmount) return;
 
         // id is shareID
-        console.log("harman ludo")
+     
         //API call to make 'Bill Made' in payment table 'Yes'
         
 
@@ -94,11 +92,9 @@ function MakeBill(){
           url:`${process.env.REACT_APP_BACKEND}/make_bill`,
           data:{
               token: access_token,
-              userID: userID,
               sharedByEmail : sharedByEmail,
               sharedRecordID: id,
               amount: billAmount,
-              role: 'PH'
           }
         }).then((response)=>{
           const data = response.data

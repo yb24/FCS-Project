@@ -147,3 +147,10 @@ class OtpTableRegistration(models.Model):
     userEmail = models.CharField(max_length=50)
     otp = models.CharField(max_length=30)
     timeStamp = models.CharField(max_length=100)
+
+class PendingDocumentRequests(models.Model):
+    userID = models.CharField(max_length=30)
+    receiverEmail = models.CharField(max_length=50)
+    docType = models.CharField(max_length=30)
+    date = models.CharField(max_length=30)
+    requestCompleted = models.CharField(max_length=30)

@@ -28,7 +28,6 @@ function PaymentsToBeMade(){
         url:`${process.env.REACT_APP_BACKEND}/display_payments_to_be_made`,
         data:{
             token: access_token,
-            userID: userID
         }
       }).then((response)=>{
         const data = response.data
@@ -67,7 +66,6 @@ function PaymentsToBeMade(){
     
      const getEmailIDandAmount=(id)=>{
         if(!id)return [0,0];
-        console.log("ho raha hai")
         for(var i=0; i<payments.length; i++){
 
             if(payments[i]['id']===id){
@@ -99,7 +97,6 @@ function PaymentsToBeMade(){
         url:`${process.env.REACT_APP_BACKEND}/generate_otp`,
         data:{
             token: access_token,
-            userID: userID
         }
       }).then((response)=>{
         const data = response.data
@@ -120,7 +117,6 @@ function PaymentsToBeMade(){
           url:`${process.env.REACT_APP_BACKEND}/make_payment`,
           data:{
               token: access_token,
-              userID: userID,
               paymentID: id,
               otp : otp
           }
