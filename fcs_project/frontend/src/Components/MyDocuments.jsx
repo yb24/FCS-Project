@@ -25,7 +25,7 @@ function MyDocuments(){
     const FetchMyDocuments =()=>{
       axios({
         method: "POST",
-        url:`http://127.0.0.1:8000/api/user/display_upload_records`,
+        url:`${process.env.REACT_APP_BACKEND}/display_upload_records`,
         data:{
             token: access_token,
             userID: userID,
