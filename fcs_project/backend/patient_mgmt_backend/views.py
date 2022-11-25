@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from patient_mgmt_backend.serializers import UserLoginSerializer, UserProfileSerializer, UserRegistrationSerializer
 from django.contrib.auth import authenticate
@@ -503,7 +504,25 @@ def generate_otp_registration(request):
             return Response(data = "Success", status=status.HTTP_201_CREATED)
     return Response(data = "Success")
 
-    
+
+class PostView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get(self, request, *args, **kwargs):
+        posts = Post.objects.all()
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        posts_serializer = PostSerializer(data=request.data)
+        if posts_serializer.is_valid():
+            posts_serializer.save()
+            return Response(posts_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            print('error', posts_serializer.errors)
+            return Response(posts_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 def verify_user(token):
     secret = bytes(os.getenv('SECRET_KEY'), "latin1")
     split_token = token.split(".")

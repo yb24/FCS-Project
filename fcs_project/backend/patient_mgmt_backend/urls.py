@@ -27,4 +27,5 @@ urlpatterns = [
     path('generate_otp_registration', generate_otp_registration),
     path('request_documents',request_documents),
     path('display_pending_document_requests', display_pending_document_requests),
+    path('posts/', PostView.as_view(), name= 'posts_list'),
 ]

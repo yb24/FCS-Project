@@ -1,6 +1,7 @@
 from django.contrib import admin
 from patient_mgmt_backend.models import User, OtpTableRegistration
 from .models import UploadRecords
+from .models import Post
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 class UserModelAdmin(BaseUserAdmin):
@@ -30,3 +31,4 @@ class UserModelAdmin(BaseUserAdmin):
 # Now register the new UserModelAdmin...
 admin.site.register(User, UserModelAdmin)
 admin.site.register(UploadRecords)
+admin.site.register(Post)
