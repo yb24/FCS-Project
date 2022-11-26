@@ -2,11 +2,9 @@ import React, {useState, useEffect} from 'react';
 import {Grid, Button} from '@mui/material';
 import {Routes, Route, useNavigate, Outlet} from 'react-router-dom';
 
-
 function PatientView(){
 
     const navigate = useNavigate();
-
 
     const navigateToProfile = () => {
         // navigate to Healthcare professionals
@@ -32,15 +30,10 @@ function PatientView(){
         // navigate to My Documents
         navigate('MyDocuments');
     };
-    const navigateToRequestDocuments = () => {
-        // navigate to Shared Documents
-        navigate('RequestDocuments');
-    };
     const navigateToSharedDocuments = () => {
         // navigate to Shared Documents
         navigate('SharedDocuments');
     };
-    
     const navigateToPaymentsToBeMade = () => {
         // navigate to Shared Documents
         navigate('PaymentsToBeMade');
@@ -76,9 +69,6 @@ function PatientView(){
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToMyDocuments}>My Documents</Button>
-                </Grid>
-                <Grid item xs={6} md={8}>
-                    <Button variant="contained" onClick={navigateToRequestDocuments}>Request Documents</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToSharedDocuments}>Documents Shared With Me</Button>

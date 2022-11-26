@@ -12,7 +12,7 @@ function InsuranceFirmsList(){
 
         //make axios call here
         axios({
-            method: "POST",
+            method: "GET",
             url:`${process.env.REACT_APP_BACKEND}/get_all_insurance_firm`,
             data:{
                 token: access_token,

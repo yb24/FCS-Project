@@ -1,6 +1,5 @@
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from patient_mgmt_backend.serializers import UserLoginSerializer, UserProfileSerializer, UserRegistrationSerializer
 from django.contrib.auth import authenticate
@@ -52,14 +51,14 @@ class UserRegistrationView(APIView):
     userEmail = request.data['email']
     otp_record = OtpTableRegistration.objects.get(userEmail=userEmail)
     if not otp_record:
-        # print("here1")
+        print("here1")
         return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
     OtpTableRegistration.objects.filter(userEmail=userEmail).delete()
     if otp_record.otp != otp or float(otp_record.timeStamp) < time.time() - 120:
-        # print("here2")
-        # print(otp_record.otp != otp)
-        # print(otp)
-        # print(otp_record.otp)
+        print("here2")
+        print(otp_record.otp != otp)
+        print(otp)
+        print(otp_record.otp)
         return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
 
     user = serializer.save()
@@ -155,7 +154,9 @@ def delete_upload_records(request):
     if not authenticated:
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     try:
+        print(request.data)
         report_id = request.data["reportID"]
+        print(report_id)
         UploadRecords.objects.filter(id=report_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except UploadRecords.DoesNotExist:
@@ -198,14 +199,30 @@ def insert_upload_records(request):
 
 @api_view(['POST'])
 def insert_user_table(request):
-    authenticated, userId = verify_user(request.data["token"])
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(data = "Success", status=status.HTTP_201_CREATED)
-    return Response("Error While Insertion", status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+def display_unmade_pharmacy_bills(request):
+    # filter by document type and then filter only unmade bills
+    # Tables involved: uploadRecords, PaymentRecords
+    return "success"
+
+@api_view(['POST'])
+def display_unmade_insurance_firm_bills(request):
+    # filter by document type and then filter only unmade bills
+    return "success"
+
+@api_view(['GET'])
+def display_user_table(request):
+    note = User.objects.all()
+    serializer = UserSerializer(note, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
 def get_all_healthcare_professionals(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
@@ -215,7 +232,7 @@ def get_all_healthcare_professionals(request):
 
     return Response(serializer.data)
 
-@api_view(['POST'])
+@api_view(['GET'])
 def get_all_pharmacy(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
@@ -224,7 +241,7 @@ def get_all_pharmacy(request):
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
 
-@api_view(['POST'])
+@api_view(['GET'])
 def get_all_insurance_firm(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
@@ -235,7 +252,7 @@ def get_all_insurance_firm(request):
     return Response(serializer.data)
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 def get_all_hospital(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
@@ -257,19 +274,7 @@ def share_document(request):
     docLink = UploadRecords.objects.filter(id=reportID).values_list('docLink', flat=True)
     docType = UploadRecords.objects.filter(id=reportID).values_list('docType', flat=True)
     to_be_inserted = {"userID":userID, "receiverEmail":receiverEmail, "reportID": reportID, "billMade":billMade, "docLink":docLink[0], "docType":docType[0]}
-    # print(to_be_inserted)
-
-    if request.data["requestID"] != "":
-        updateRecord = PendingDocumentRequests.objects.get(id = request.data["requestID"])
-        emailToBeSent = User.objects.filter(id=updateRecord.userID).values_list('email', flat=True)[0]
-        print(receiverEmail, emailToBeSent)
-        if receiverEmail == emailToBeSent:
-            updateRecord.requestCompleted = "Yes"
-            updateRecord.save(update_fields=['requestCompleted'])
-        else:
-            return Response("Wrong recevier mail", status=status.HTTP_400_BAD_REQUEST)
-
-
+    print(to_be_inserted)
     serializer = ShareRecordsSerializer(data=to_be_inserted)
     if serializer.is_valid():
         serializer.save()
@@ -322,11 +327,10 @@ def display_shared_documents(request):
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     user_email = User.objects.filter(id=userID).values_list('email', flat=True)
-    # print(user_email)
     if not user_email:
         return Response(data = "No user found", status=status.HTTP_400_BAD_REQUEST)
     shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0]).values('id', 'userID', 'docType', 'docLink', 'billMade')
-    # print(list(shared_records_list))
+    print(list(shared_records_list))
     return_records = []
     for records in list(shared_records_list):
         new_rec = dict()
@@ -359,7 +363,7 @@ def display_unmade_bills(request):
             new_rec['billMade'] = records['billMade']
             return_records.append(new_rec) 
         return Response(data = return_records, status=status.HTTP_201_CREATED)
-    elif role == "IF":
+    elif request.data['role'] == "IF":
         shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType__in = ["discharge_summary", "bill"], billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade')
         return_records = []
         for records in list(shared_records_list):
@@ -387,12 +391,12 @@ def make_bill(request):
     receiverEmail = ""
     amount = request.data['amount']
     status = "Unpaid"
-    if role == 'IF':
-        payerID = userID
+    if request.data['role'] == 'IF':
+        payerID = request.data['userID']
         receiverEmail = request.data['sharedByEmail']
-    elif role == 'PH':
+    elif request.data['role'] == 'PH':
         payerID = User.objects.filter(email=request.data['sharedByEmail']).values_list('id', flat=True)[0]
-        receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
+        receiverEmail = User.objects.filter(id=request.data['userID']).values_list('email', flat=True)[0]
     else:
         return Response(data = "Incorrect Role", status=status.HTTP_400_BAD_REQUEST)
     record = {"payerID":payerID, "receiverEmail":receiverEmail, "status":status, "amount":amount}
@@ -425,6 +429,7 @@ def make_payment(request):
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     otp = str(request.data['otp'])
+    userID = request.data['userID']
     otp_record = OtpTable.objects.get(userID=userID)
     if not otp_record:
         return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
@@ -444,7 +449,7 @@ def display_all_payment_records(request):
     
     receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     print(receiverEmail)
-    payment_records = list(PaymentRecords.objects.filter(Q(payerID = userID) | Q(receiverEmail = receiverEmail)).values('id', 'payerID', 'receiverEmail', 'amount','status'))
+    payment_records = list(PaymentRecords.objects.filter(Q(payerID = request.data["userID"]) | Q(receiverEmail = receiverEmail)).values('id', 'payerID', 'receiverEmail', 'amount','status'))
     return_records = []
     print(payment_records)
     for records in payment_records:
@@ -469,16 +474,16 @@ def generate_otp(request):
     for i in range(6):
         OTP += digits[math.floor(random.random()*10)]
     otp = OTP + " is your OTP"
-    msg = 'Subject: {}\n\n{}'.format("Generated OTP", otp)
+    msg = 'Subject: {}\n\n{}'.format("Generated OTP for payment", otp)
 
     s = smtplib.SMTP("smtp.gmail.com", 587)
     s.starttls()
     
     s.login("otp123authenticator@gmail.com", os.getenv('EMAIL_PWD'))
     s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
-    record = {'userID': userID, 'otp': OTP, 'timeStamp': str(time.time())}
+    record = {'userID': request.data['userID'], 'otp': OTP, 'timeStamp': str(time.time())}
     try:
-        existing_otp_record = OtpTable.objects.get(userID=userID)
+        existing_otp_record = OtpTable.objects.get(userID=request.data['userID'])
         existing_otp_record.otp = OTP
         existing_otp_record.timeStamp = str(time.time())
         existing_otp_record.save(update_fields=['otp', 'timeStamp'])
@@ -520,33 +525,6 @@ def generate_otp_registration(request):
             serializer.save()
             return Response(data = "Success", status=status.HTTP_201_CREATED)
     return Response(data = "Success")
-class PostView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
-
-    def get(self, request, *args, **kwargs):
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, *args, **kwargs):
-        posts_serializer = PostSerializer(data=request.data)
-        if posts_serializer.is_valid():
-            posts_serializer.save()
-            return Response(posts_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            print('error', posts_serializer.errors)
-            return Response(posts_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['POST'])
-def upload_doc(request):
-    posts_serializer = PostSerializer(data=request.data)
-    if posts_serializer.is_valid():
-        posts_serializer.save()
-        return Response(posts_serializer.data, status=status.HTTP_201_CREATED)
-    else:
-        print('error', posts_serializer.errors)
-        return Response(posts_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 def verify_user(token):
     secret = bytes(os.getenv('SECRET_KEY'), "latin1")

@@ -32,6 +32,7 @@ function MyDocuments(){
         url:`${process.env.REACT_APP_BACKEND}/display_upload_records`,
         data:{
             token: access_token,
+            userID: userID,
         }
       }).then((response)=>{
         const data = response.data
@@ -58,6 +59,7 @@ function MyDocuments(){
         url:`${process.env.REACT_APP_BACKEND}/delete_upload_records`,
         data:{
             token: access_token,
+            UserID:userID,
             reportID: report_id,
         }
       }).then((response)=>{
@@ -178,9 +180,9 @@ function MyDocuments(){
           url:`${process.env.REACT_APP_BACKEND}/share_document`,
           data:{
               token: access_token,
+              userID:userID,
               reportID: reportID,
-              emailID : emailID,
-              requestID: ''
+              emailID : emailID
           }
         }).then((response)=>{
           console.log(response)

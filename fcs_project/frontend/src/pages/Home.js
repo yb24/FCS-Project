@@ -68,7 +68,7 @@ const Home = () => {
     }
     if (res.data)
     {
-      console.log(res.data)
+      console.log("home page",res.data)
       //1. if not auth, then add para, not auth!
       if (res.data['status']=='NA')
       {

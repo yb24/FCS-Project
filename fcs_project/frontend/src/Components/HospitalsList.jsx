@@ -14,7 +14,7 @@ function HospitalsList(){
 
         //make axios call here
         axios({
-            method: "POST",
+            method: "GET",
             url:`${process.env.REACT_APP_BACKEND}/get_all_hospital`,
             data:{
                 token: access_token,

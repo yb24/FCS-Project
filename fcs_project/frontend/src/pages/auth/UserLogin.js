@@ -17,6 +17,8 @@ const UserLogin = () => {
       email: data.get('email'),
       password: data.get('password'),
     }
+    console.log("heyo")
+    console.log(`${process.env.REACT_APP_BACKEND}`)
     const res = await loginUser(actualData)
     if (res.error)
     {

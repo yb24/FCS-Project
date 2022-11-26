@@ -87,20 +87,3 @@ class OtpTableRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = OtpTableRegistration
         fields = ['id','userEmail','otp','timeStamp']
-
-class PendingDocumentRequestsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PendingDocumentRequests
-        fields = ['id','userID','receiverEmail','docType','date','requestCompleted']
-
-class PostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Post
-        fields = '__all__'
-
-# class DocumentSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         # model = Document
-#         # fields = '__all__'
-#         model = Document
-#         fields = ['name','generated_file_name','workflow_id','step_id','owner_id','datetime_uploaded','verification_status']

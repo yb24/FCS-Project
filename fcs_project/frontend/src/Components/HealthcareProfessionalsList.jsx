@@ -14,7 +14,7 @@ function HealthcareProfessionalsList(){
 
         //make axios call here
         axios({
-            method: "POST",
+            method: "GET",
             url:`${process.env.REACT_APP_BACKEND}/get_all_healthcare_professionals`,
             data:{
                 token: access_token,
