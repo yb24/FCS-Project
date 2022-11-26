@@ -24,6 +24,9 @@ import hmac
 import hashlib
 import ast
 
+from django.core.files.storage import FileSystemStorage
+import datetime
+
 load_dotenv()
 
 # Generate Token Manually
@@ -503,8 +506,6 @@ def generate_otp_registration(request):
             serializer.save()
             return Response(data = "Success", status=status.HTTP_201_CREATED)
     return Response(data = "Success")
-
-
 class PostView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
@@ -521,6 +522,16 @@ class PostView(APIView):
         else:
             print('error', posts_serializer.errors)
             return Response(posts_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def upload_doc(request):
+    posts_serializer = PostSerializer(data=request.data)
+    if posts_serializer.is_valid():
+        posts_serializer.save()
+        return Response(posts_serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        print('error', posts_serializer.errors)
+        return Response(posts_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def verify_user(token):
@@ -543,7 +554,60 @@ def verify_user(token):
         return True, payload['user_id']
     return False, -1
 
+from django.http import FileResponse, HttpResponse
+from wsgiref.util import FileWrapper
+import mimetypes
+
+@api_view(['POST'])
+def get_icon(request):
+    img = Post.objects.get(title=request.data['file'])
+    file_path = '/home/aryan/Desktop/clone/FCS-Project/fcs_project/backend/mediafiles/'+str(img.image)
+    print(str(img.image))
+    # wrapper = FileWrapper(open(file_path))
+    # content_type = mimetypes.guess_type(str(img.image))[0]  # Use mimetypes to get file type
+    # print(wrapper)
+    # print(content_type)
+    # response = HttpResponse(wrapper,content_type=content_type)  
+    # response['Content-Length'] = os.path.getsize(img.image)    
+    # response['Content-Disposition'] = "attachment; filename=%s" %  img.title
+    # return response
+    return FileResponse(open(file_path,'rb'))
+
+    return FileResponse("fcs_project/backend/mediafiles/post_images/"+request.data['file'])
+
+
 
 def getUserRole(userID):
     userRole = User.objects.filter(id=userID).values_list('role', flat=True)[0]
     return userRole
+
+# @api_view(['POST'])
+# def upload_doc(request):
+#     request_file = request.FILES['document'] if 'document' in request.FILES else None
+#     print(request_file)
+#     datetime_stamp = str(datetime.datetime.now())
+#     if request_file:
+#         print("ajjaj")
+#         documentObject = {
+#             'name': request_file.name,
+#             'generated_file_name': request_file.name + '_$$_',
+#             'workflow_id':'1',
+#             'step_id':'1',
+#             'owner_id':'1',
+#             'datetime_uploaded': datetime_stamp,
+#             'verification_status':'not verified',
+#         }
+#         try:
+#             serializer = DocumentSerializer(data=documentObject)
+#         except Exception as e:
+#             print(e)
+#         if serializer.is_valid():
+#             print("ere")
+#             serializer.save()
+#             fs = FileSystemStorage()
+#             generated_file_name = documentObject['generated_file_name']
+#             file = fs.save(generated_file_name, request_file)
+#             fileurl = fs.url(file)
+#             print(fileurl)
+#             return Response(data = "Success", status=status.HTTP_201_CREATED)
+#         return Response(data = "Error", status=status.HTTP_400_BAD_REQUEST)

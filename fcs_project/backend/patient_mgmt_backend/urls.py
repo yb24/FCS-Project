@@ -1,6 +1,7 @@
 from django.urls import path
 from patient_mgmt_backend.views import UserLoginView, UserProfileView, UserRegistrationView
 from .views import *
+
 urlpatterns = [
     path('register/', UserRegistrationView.as_view(), name='register'),
     path('login/', UserLoginView.as_view(), name='login'),
@@ -28,4 +29,6 @@ urlpatterns = [
     path('request_documents',request_documents),
     path('display_pending_document_requests', display_pending_document_requests),
     path('posts/', PostView.as_view(), name= 'posts_list'),
-]
+    path('upload_doc',upload_doc),
+    path('get_icon',get_icon),
+]   

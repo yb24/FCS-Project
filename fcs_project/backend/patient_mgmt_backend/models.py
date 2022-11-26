@@ -158,7 +158,17 @@ class PendingDocumentRequests(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
-    image = models.ImageField(upload_to='post_images')
+    image = models.FileField(upload_to='post_images')
 
     def __str__(self):
         return self.title
+
+# class Document(models.Model):
+#     name = models.CharField(max_length=255)
+#     generated_file_name = models.CharField(max_length=500)
+#     workflow_id = models.CharField(max_length=100)
+#     step_id = models.CharField(max_length=100)
+#     owner_id = models.CharField(max_length=50)
+#     datetime_uploaded = models.CharField(max_length=100)
+#     verification_status = models.CharField(max_length=100)
+   
