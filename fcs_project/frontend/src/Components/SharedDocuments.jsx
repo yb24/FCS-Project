@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
+import {Button} from '@mui/material';
 import { getToken } from '../services/localStorageService';
 
 function SharedDocuments(){
@@ -8,6 +9,9 @@ function SharedDocuments(){
     let {access_token, refresh_token} = getToken()
     let userID = JSON.parse(window.atob(access_token.split('.')[1]))
     userID = userID['user_id'] 
+
+    const [selectionModel, setSelectionModel] = useState([]);
+
     const FetchSharedDocuments  =()=>{
 
         axios({
@@ -58,6 +62,43 @@ function SharedDocuments(){
 
 
 
+
+      const handleViewDocument = (selectedRowID) =>{
+
+        if(selectedRowID.length===0) return;
+        let filePath = '';
+        for(let i=0; i<sharedDocuments.length; i++){
+          if(sharedDocuments[i]['id']===selectedRowID[0]){
+            filePath = sharedDocuments[i]['doc']
+            break;
+          }
+        }
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_file`,
+          data:{
+              token: access_token,
+              file:filePath
+          },
+          responseType:'blob',
+        }).then((response)=>{
+          
+          window.open((URL.createObjectURL(response.data)), '_blank')
+      
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response);
+          }
+        
+  
+        })
+        
+
+
+      }
+
+
+
     return(
         <div style={{margin:10, justifyContent:'center'}}>
 
@@ -70,10 +111,18 @@ function SharedDocuments(){
                 rowsPerPageOptions={[10]}
                 getRowId={row =>  row.id}
                 components={{Toolbar: SharedDocumentsFilters,}}
+                onSelectionModelChange={(newSelection) => {
+                  setSelectionModel(newSelection);
+                  }}
+                selectionModel={selectionModel}
             />
          
 
         </div>
+
+        <Button variant = "contained" onClick={() => handleViewDocument(selectionModel)}>
+                  View Document
+                </Button>
 
         </div>
     )

@@ -25,6 +25,8 @@ function MyDocumentsWithRequests(){
     const [open, setOpen] = useState(false);
     const [email, setEmail] = useState('')
 
+    const [responseMessage, setResponseMessage] = useState('');
+
     const FetchMyDocuments =()=>{
       axios({
         method: "POST",
@@ -39,6 +41,7 @@ function MyDocumentsWithRequests(){
       }).catch((error) => {
         if (error.response) {
           console.log(error.response);
+
           }
       })
     }
@@ -57,6 +60,7 @@ function MyDocumentsWithRequests(){
         }).catch((error) => {
           if (error.response) {
             console.log(error.response);
+            setResponseMessage(error.response.data)
             }
         })
       }
@@ -81,10 +85,12 @@ function MyDocumentsWithRequests(){
         }
       }).then((response)=>{
         console.log(response)
+        setResponseMessage("File deleted successfully!")
         FetchMyDocuments()
       }).catch((error) => {
         if (error.response) {
           console.log(error.response);
+          setResponseMessage("File could not be deleted due to some error.")
           }
       })
       setSelectionModel([])
@@ -102,25 +108,31 @@ function MyDocumentsWithRequests(){
     }
 
     const onFileUpload = () => {
-    
-        console.log("here")
-        axios({
-          method: "POST",
-          url:`${process.env.REACT_APP_BACKEND}/insert_upload_records`,
-          data:{
-              token: access_token,
-              docLink: docLink,
-              docType: type,
+
+      if(!selectedFile) return;
+
+      let formData = new FormData();
+      formData.append('token', access_token);
+      formData.append('docType', type);
+      formData.append('image', selectedFile, selectedFile.name);
+      formData.append('title', selectedFile.name);
+      formData.append('content', "File");
+      let url = `${process.env.REACT_APP_BACKEND}/insert_upload_records`;
+      axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((response)=>{
+        const data = response.data
+        console.log(data)
+        setResponseMessage("File uploaded successfully!")
+        FetchMyDocuments()
+      }).catch((error) => {
+        if (error.response) {
+          console.log(error.response);
+          setResponseMessage("Error occurred due to unsupported file type, size limit, or unauthorized access.")
           }
-        }).then((response)=>{
-          const data = response.data
-          console.log(data)
-          FetchMyDocuments()
-        }).catch((error) => {
-          if (error.response) {
-            console.log(error.response);
-            }
-        })
+      })
         // const formData = new FormData();
       
 
@@ -196,10 +208,12 @@ function MyDocumentsWithRequests(){
 
         }).then((response)=>{
           console.log(response)
+          setResponseMessage("File shared successfully!")
           FetchDocumentRequests();
         }).catch((error) => {
           if (error.response) {
             console.log(error.response);
+            setResponseMessage("File could not be shared due to some error.")
             }
         })
 
@@ -232,6 +246,46 @@ function MyDocumentsWithRequests(){
         { field: 'type', headerName: 'Type of Document', width:300 },
         { field: 'date', headerName: 'Date', width:300 },
       ];
+
+
+
+
+
+      const handleViewDocument = (selectedRowID) =>{
+
+        if(selectedRowID.length===0) return;
+        let filePath = '';
+        for(let i=0; i<myDocuments.length; i++){
+          if(myDocuments[i]['id']===selectedRowID[0]){
+            filePath = myDocuments[i]['docLink']
+            break;
+          }
+        }
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_file`,
+          data:{
+              token: access_token,
+              file:filePath
+          },
+          responseType:'blob',
+        }).then((response)=>{
+        
+          
+          window.open((URL.createObjectURL(response.data)), '_blank')
+      
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response);
+           
+          }
+        
+  
+        })
+        
+
+
+      }
 
 
 
@@ -278,12 +332,16 @@ function MyDocumentsWithRequests(){
             <MenuItem value={"discharge_summary"}>Discharge Summary</MenuItem>
             </Select>
         </FormControl>
-                <TextField onChange={handleDocLink} />
+                {/* <TextField onChange={handleDocLink} /> */}
+                <input type="file" onChange={onFileChange} />
                 <Button variant = "contained" onClick={onFileUpload}>
                   Upload!
                 </Button> 
                 <Button variant = "contained" onClick={() => handleDeleteRecord(selectionModel[0])}>
                   Delete!
+                </Button>
+                <Button variant = "contained" onClick={() => handleViewDocument(selectionModel)}>
+                  View Document
                 </Button>
             </div>
     

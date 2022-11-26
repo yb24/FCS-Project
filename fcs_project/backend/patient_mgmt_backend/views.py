@@ -24,8 +24,13 @@ import hmac
 import hashlib
 import ast
 
+from django.http import FileResponse, HttpResponse
+from wsgiref.util import FileWrapper
+import mimetypes
+
 from django.core.files.storage import FileSystemStorage
 import datetime
+from django.utils import timezone
 
 load_dotenv()
 
@@ -148,7 +153,7 @@ def note_detail(request, pk):
 def delete_upload_records(request):
     authenticated, userId = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     try:
         report_id = request.data["reportID"]
         UploadRecords.objects.filter(id=report_id).delete()
@@ -160,7 +165,7 @@ def delete_upload_records(request):
 def display_upload_records(request):
     authenticated, userId = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     note = UploadRecords.objects.filter(userID=userId)
     serializer = UploadRecordsSerializer(note, many=True)
     return Response(serializer.data)
@@ -169,18 +174,26 @@ def display_upload_records(request):
 def insert_upload_records(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    cur_time = str(timezone.localtime())
+    cur_time = cur_time.replace(' ',':')
     
-    # print(dict(request.data))
-    # print(request.data['docType'])
-    request.data['userID'] = userID
-    serializer = UploadRecordsSerializer(data=request.data)
-    if serializer.is_valid():
-        print('isValid')
+    request.data["title"] = str(request.data["title"]) + "_" + cur_time + "_" + str(userID)
+    record = dict()
+    record['userID'] = userID
+    record['docType'] = request.data['docType'] 
+    record['docLink'] = request.data["title"]
+    request.data.pop('token')
+    request.data.pop('docType')
+    posts_serializer = PostSerializer(data=request.data)
+    if posts_serializer.is_valid() == False:
+        return Response("Error while insertion (file size too big or invalid file type)", status=status.HTTP_400_BAD_REQUEST)
+    posts_serializer.save()  
+
+    serializer = UploadRecordsSerializer(data=record)
+    if serializer.is_valid():   
         serializer.save()
         return Response(data = "Success", status=status.HTTP_201_CREATED)
-    else:
-        print('notValid')
     return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -196,7 +209,7 @@ def insert_user_table(request):
 def get_all_healthcare_professionals(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     note = User.objects.filter(role='HP').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
 
@@ -206,7 +219,7 @@ def get_all_healthcare_professionals(request):
 def get_all_pharmacy(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     note = User.objects.filter(role='PH').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
@@ -215,7 +228,7 @@ def get_all_pharmacy(request):
 def get_all_insurance_firm(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
 
     note = User.objects.filter(role='IF').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
@@ -226,7 +239,7 @@ def get_all_insurance_firm(request):
 def get_all_hospital(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     note = User.objects.filter(role='HS').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
@@ -236,7 +249,7 @@ def get_all_hospital(request):
 def share_document(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     receiverEmail = request.data['emailID']
     reportID = request.data['reportID']
@@ -268,7 +281,7 @@ def share_document(request):
 def request_documents(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     docType = request.data['docType']
     receiverEmail = request.data['receiverEmail']
@@ -284,7 +297,7 @@ def request_documents(request):
 def display_pending_document_requests(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     records = list(PendingDocumentRequests.objects.filter(requestCompleted = "No", receiverEmail = receiverEmail).values('id', 'userID', 'docType', 'date'))
@@ -306,7 +319,7 @@ def display_pending_document_requests(request):
 def display_shared_documents(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     user_email = User.objects.filter(id=userID).values_list('email', flat=True)
     # print(user_email)
@@ -329,7 +342,7 @@ def display_shared_documents(request):
 def display_unmade_bills(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     user_email = User.objects.filter(id=userID).values_list('email', flat=True)
     role = getUserRole(userID)
@@ -365,7 +378,7 @@ def display_unmade_bills(request):
 def make_bill(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     role = getUserRole(userID)
     updateRecord = ShareRecords.objects.get(id = request.data['sharedRecordID'])
     updateRecord.billMade = "Yes"
@@ -393,7 +406,7 @@ def make_bill(request):
 def display_payments_to_be_made(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     records = list(PaymentRecords.objects.filter(status = "Unpaid", payerID = userID).values('id', 'receiverEmail', 'amount','status'))
     return Response(data = records, status=status.HTTP_201_CREATED)
@@ -409,7 +422,7 @@ def make_payment(request):
     #   Else delete the otp entry from OtpTable. 
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     otp = str(request.data['otp'])
     otp_record = OtpTable.objects.get(userID=userID)
@@ -427,7 +440,7 @@ def make_payment(request):
 def display_all_payment_records(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     print(receiverEmail)
@@ -448,7 +461,7 @@ def display_all_payment_records(request):
 def generate_otp(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
-        return Response(detail = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     digits = "0123456789"
@@ -460,7 +473,8 @@ def generate_otp(request):
 
     s = smtplib.SMTP("smtp.gmail.com", 587)
     s.starttls()
-    s.login("otp123authenticator@gmail.com", "fqriotdtdzkuaxcb")
+    
+    s.login("otp123authenticator@gmail.com", os.getenv('EMAIL_PWD'))
     s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
     record = {'userID': userID, 'otp': OTP, 'timeStamp': str(time.time())}
     try:
@@ -554,60 +568,32 @@ def verify_user(token):
         return True, payload['user_id']
     return False, -1
 
-from django.http import FileResponse, HttpResponse
-from wsgiref.util import FileWrapper
-import mimetypes
+
 
 @api_view(['POST'])
-def get_icon(request):
+def get_file(request):
+    authenticated, userID = verify_user(request.data["token"])
+    if not authenticated:
+        print('not auth')
+        return HttpResponse(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    realUser = str(request.data['file'].split('_')[-1])
+    if str(realUser) != str(userID):
+        print('not auth')
+        return Response(data = "Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
     img = Post.objects.get(title=request.data['file'])
-    file_path = '/home/aryan/Desktop/clone/FCS-Project/fcs_project/backend/mediafiles/'+str(img.image)
+    file_path = os.getenv('STORAGE_PATH')+str(img.image)
     print(str(img.image))
-    # wrapper = FileWrapper(open(file_path))
-    # content_type = mimetypes.guess_type(str(img.image))[0]  # Use mimetypes to get file type
-    # print(wrapper)
-    # print(content_type)
-    # response = HttpResponse(wrapper,content_type=content_type)  
-    # response['Content-Length'] = os.path.getsize(img.image)    
-    # response['Content-Disposition'] = "attachment; filename=%s" %  img.title
-    # return response
-    return FileResponse(open(file_path,'rb'))
-
-    return FileResponse("fcs_project/backend/mediafiles/post_images/"+request.data['file'])
+    wrapper = FileWrapper(open(file_path, 'rb'))
+    content_type = mimetypes.guess_type(str(img.image))[0]  # Use mimetypes to get file type
+    print(wrapper)
+    print(content_type)
+    response = HttpResponse(wrapper,content_type=content_type)  
+    response['Content-Length'] = os.path.getsize(file_path)    
+    response['Content-Disposition'] = "attachment; filename=%s" %  img.title
+    return response
 
 
 
 def getUserRole(userID):
     userRole = User.objects.filter(id=userID).values_list('role', flat=True)[0]
     return userRole
-
-# @api_view(['POST'])
-# def upload_doc(request):
-#     request_file = request.FILES['document'] if 'document' in request.FILES else None
-#     print(request_file)
-#     datetime_stamp = str(datetime.datetime.now())
-#     if request_file:
-#         print("ajjaj")
-#         documentObject = {
-#             'name': request_file.name,
-#             'generated_file_name': request_file.name + '_$$_',
-#             'workflow_id':'1',
-#             'step_id':'1',
-#             'owner_id':'1',
-#             'datetime_uploaded': datetime_stamp,
-#             'verification_status':'not verified',
-#         }
-#         try:
-#             serializer = DocumentSerializer(data=documentObject)
-#         except Exception as e:
-#             print(e)
-#         if serializer.is_valid():
-#             print("ere")
-#             serializer.save()
-#             fs = FileSystemStorage()
-#             generated_file_name = documentObject['generated_file_name']
-#             file = fs.save(generated_file_name, request_file)
-#             fileurl = fs.url(file)
-#             print(fileurl)
-#             return Response(data = "Success", status=status.HTTP_201_CREATED)
-#         return Response(data = "Error", status=status.HTTP_400_BAD_REQUEST)

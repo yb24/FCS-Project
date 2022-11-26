@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager,AbstractBaseUser
 from email.policy import default
+from patient_mgmt_backend.validators import *
 
 #  Custom User Manager
 class UserManager(BaseUserManager):
@@ -118,7 +119,7 @@ class React(models.Model):
 
 class UploadRecords(models.Model):
     userID = models.CharField(max_length=30)
-    docLink = models.CharField(max_length=5000)
+    docLink = models.CharField(max_length=200)
     docType = models.CharField(max_length=30)
 
 
@@ -135,7 +136,7 @@ class ShareRecords(models.Model):
     receiverEmail = models.CharField(max_length=30)
     reportID = models.CharField(max_length = 30)
     billMade = models.CharField(max_length=30)
-    docLink = models.CharField(max_length=100)
+    docLink = models.CharField(max_length=200)
     docType = models.CharField(max_length=30)
 
 class OtpTable(models.Model):
@@ -158,17 +159,9 @@ class PendingDocumentRequests(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
-    image = models.FileField(upload_to='post_images')
+    image = models.FileField(upload_to='post_images', validators=[validate_file_size, validate_file_extension])
 
     def __str__(self):
         return self.title
 
-# class Document(models.Model):
-#     name = models.CharField(max_length=255)
-#     generated_file_name = models.CharField(max_length=500)
-#     workflow_id = models.CharField(max_length=100)
-#     step_id = models.CharField(max_length=100)
-#     owner_id = models.CharField(max_length=50)
-#     datetime_uploaded = models.CharField(max_length=100)
-#     verification_status = models.CharField(max_length=100)
    

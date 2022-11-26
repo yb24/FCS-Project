@@ -133,6 +133,40 @@ function MakeBill(){
       ];
 
 
+      const handleViewDocument = (selectedRowID) =>{
+
+        if(selectedRowID.length===0) return;
+        let filePath = '';
+        for(let i=0; i<sharedDocuments.length; i++){
+          if(sharedDocuments[i]['id']===selectedRowID[0]){
+            filePath = sharedDocuments[i]['doc']
+            break;
+          }
+        }
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_file`,
+          data:{
+              token: access_token,
+              file:filePath
+          },
+          responseType:'blob',
+        }).then((response)=>{
+          
+          window.open((URL.createObjectURL(response.data)), '_blank')
+      
+        }).catch((error) => {
+          if (error.response) {
+            console.log(error.response);
+          }
+        
+  
+        })
+        
+
+
+      }
+
 
     return(
         <div style={{margin:10, justifyContent:'center'}}>
@@ -151,6 +185,10 @@ function MakeBill(){
                 }}
                 selectionModel={selectionModel}
             />
+
+<Button variant = "contained" onClick={() => handleViewDocument(selectionModel)}>
+                  View Document
+                </Button>
 
         <Button variant = "contained" onClick={()=>handleDialog(selectionModel)}>
                   Make Bill

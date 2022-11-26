@@ -30,5 +30,5 @@ urlpatterns = [
     path('display_pending_document_requests', display_pending_document_requests),
     path('posts/', PostView.as_view(), name= 'posts_list'),
     path('upload_doc',upload_doc),
-    path('get_icon',get_icon),
+    path('get_file',get_file),
 ]   
