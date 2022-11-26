@@ -28,7 +28,6 @@ urlpatterns = [
     path('generate_otp_registration', generate_otp_registration),
     path('request_documents',request_documents),
     path('display_pending_document_requests', display_pending_document_requests),
-    path('posts/', PostView.as_view(), name= 'posts_list'),
-    path('upload_doc',upload_doc),
     path('get_file',get_file),
+    path('get_role',get_role),
 ]   

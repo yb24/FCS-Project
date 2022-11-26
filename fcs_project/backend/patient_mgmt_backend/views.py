@@ -222,17 +222,19 @@ def display_user_table(request):
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_all_healthcare_professionals(request):
     authenticated, user = verify_user(request.data["token"])
+    print("HELOOOOOOOOOOOOOOOOOOOOoo")
+    print(user)
     if not authenticated:
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     note = User.objects.filter(role='HP').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
-
     return Response(serializer.data)
+   
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_all_pharmacy(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
@@ -241,7 +243,7 @@ def get_all_pharmacy(request):
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_all_insurance_firm(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
@@ -252,7 +254,7 @@ def get_all_insurance_firm(request):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def get_all_hospital(request):
     authenticated, user = verify_user(request.data["token"])
     if not authenticated:
@@ -547,6 +549,14 @@ def verify_user(token):
     return False, -1
 
 
+@api_view(['POST'])
+def get_role(request):
+    authenticated, userID = verify_user(request.data["token"])
+    if not authenticated:
+        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    role = User.objects.filter(id=userID).values_list('role', flat=True)[0]
+    print(role)
+    return Response({'role':role}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def get_file(request):

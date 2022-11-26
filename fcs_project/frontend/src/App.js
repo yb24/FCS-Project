@@ -1,4 +1,6 @@
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
 import LoginReg from "./pages/auth/LoginReg";
 import ResetPassword from "./pages/auth/ResetPassword";
 import SendPasswordResetEmail from "./pages/auth/SendPasswordResetEmail";
@@ -29,7 +31,25 @@ import { getToken } from "./services/localStorageService";
 
 function App() {
   const {access_token} = getToken()
-  const role = "PT"
+  const [role, setRole] = useState([]);
+  // const role = "PT"
+
+  useEffect(() => {
+    if(!access_token)
+      return;
+      axios({
+        method: "POST",
+        url:`${process.env.REACT_APP_BACKEND}/get_role`,
+        data:{
+            token: access_token,
+        }
+      }).then((response)=>{
+          console.log(response.data.role)
+          // setRole(response.)
+      }).catch((error) => {
+      })
+  }, []); 
+
   return (
     <>
       <BrowserRouter>
