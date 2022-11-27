@@ -12,6 +12,10 @@ function PharmacyView(){
         // navigate to Healthcare professionals
         navigate('Profile');
     };
+    const navigateToWallet = () => {
+        // navigate to Healthcare professionals
+        navigate('Wallet');
+    };
     const navigateToMyDocuments = () => {
         // navigate to My Documents
         navigate('MyDocuments');
@@ -40,6 +44,9 @@ function PharmacyView(){
             >
                <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToProfile}>Profile</Button>
+                </Grid>
+                <Grid item xs={6} md={8}>
+                    <Button variant="contained" onClick={navigateToWallet}>Wallet</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToMyDocuments}>My Documents</Button>

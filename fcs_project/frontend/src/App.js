@@ -100,6 +100,7 @@ function App() {
       {access_token != null && role == "PH" && <Route path="PharmacyView" >
           <Route index element={<PharmacyView />} /> 
           <Route path="Profile" element={<Profile />} />
+          <Route path="Wallet" element={<Wallet />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
           <Route path="MakeBill" element={<MakeBill />} />
@@ -110,6 +111,7 @@ function App() {
       {/* User is Insurance Firm */}
       {access_token != null && role == "IF" && <Route path="InsuranceFirmView" >
           <Route index element={<InsuranceFirmView />} /> 
+          <Route path="Wallet" element={<Wallet />} />
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />

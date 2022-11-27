@@ -122,43 +122,17 @@ class UserChangePasswordView(APIView):
         existing_user_record.save(update_fields=['name', 'address', 'contact', 'vAadhar', 'healthLicense', 'description', 'location', 'image1Path', 'image2Path'])
         return Response(data = "Success", status=status.HTTP_201_CREATED)
 
-#added
-@api_view(['GET', 'POST'])
-def note(request):
-    if request.method == 'GET':
-        note = React.objects.all()
-        serializer = ReactSerializer(note, many=True)
-        return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = ReactSerializer(data=request.data)
-        print(request.data)
-        print(serializer)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['DELETE'])
-def note_detail(request, pk):
-    try:
-        note = React.objects.get(pk=pk)
-    except React.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'DELETE':
-        note.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['DELETE'])
 def delete_upload_records(request):
+    if "token" not in request.data or "reportID" not in request.data:
+        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
     authenticated, userId = verify_user(request.data["token"])
     if not authenticated:
-        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     try:
-        print(request.data)
         report_id = request.data["reportID"]
-        print(report_id)
         UploadRecords.objects.filter(id=report_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except UploadRecords.DoesNotExist:
@@ -166,6 +140,8 @@ def delete_upload_records(request):
 
 @api_view(['POST'])
 def display_upload_records(request):
+    if "token" not in request.data:
+        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
     authenticated, userId = verify_user(request.data["token"])
     if not authenticated:
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -175,12 +151,14 @@ def display_upload_records(request):
 
 @api_view(['POST'])
 def insert_upload_records(request):
+    if "token" not in request.data or "docType" not in request.data or "title" not in request.data or "content" not in request.data or "image" not in request.data:
+        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    
     cur_time = str(timezone.localtime())
     cur_time = cur_time.replace(' ',':')
-    
     request.data["title"] = str(request.data["title"]) + "_" + cur_time + "_" + str(userID)
     record = dict()
     record['userID'] = userID
@@ -208,30 +186,17 @@ def insert_user_table(request):
         return Response(data = "Success", status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def display_unmade_pharmacy_bills(request):
-    # filter by document type and then filter only unmade bills
-    # Tables involved: uploadRecords, PaymentRecords
-    return "success"
-
-@api_view(['POST'])
-def display_unmade_insurance_firm_bills(request):
-    # filter by document type and then filter only unmade bills
-    return "success"
-
-@api_view(['GET'])
-def display_user_table(request):
-    note = User.objects.all()
-    serializer = UserSerializer(note, many=True)
-    return Response(serializer.data)
 
 @api_view(['POST'])
 def get_all_healthcare_professionals(request):
     if "token" not in request.data:
         return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-    authenticated, user = verify_user(request.data["token"])
+    authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    role = getUserRole(userID)
+    if role != 'PT':
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
     note = User.objects.filter(role='HP').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
@@ -241,9 +206,12 @@ def get_all_healthcare_professionals(request):
 def get_all_pharmacy(request):
     if "token" not in request.data:
         return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-    authenticated, user = verify_user(request.data["token"])
+    authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    role = getUserRole(userID)
+    if role != 'PT':
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
     note = User.objects.filter(role='PH').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
@@ -252,10 +220,14 @@ def get_all_pharmacy(request):
 def get_all_insurance_firm(request):
     if "token" not in request.data:
         return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-    authenticated, user = verify_user(request.data["token"])
+    authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
 
+    role = getUserRole(userID)
+    if role != 'PT':
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
+    
     note = User.objects.filter(role='IF').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
@@ -265,10 +237,14 @@ def get_all_insurance_firm(request):
 def get_all_hospital(request):
     if "token" not in request.data:
         return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-    authenticated, user = verify_user(request.data["token"])
+    authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
+    role = getUserRole(userID)
+    if role != 'PT':
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
+
     note = User.objects.filter(role='HS').values('name', 'email', 'location', 'description', 'contact', 'id')
     serializer = UserSerializer(note, many=True)
     return Response(serializer.data)
@@ -280,6 +256,11 @@ def get_curr_balance(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+
+    role = getUserRole(userID)
+    if not (role == 'PT' or role == 'IF' or role =='PH'):
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
+
     balance = UserWallet.objects.filter(userID=userID).values_list('amount', flat=True)[0]
     return Response(data = balance, status=status.HTTP_201_CREATED)
 
@@ -290,6 +271,10 @@ def add_money(request):
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    role = getUserRole(userID)
+    if not (role == 'PT' or role == 'IF' or role =='PH'):
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
+
     amount = float(request.data["amount"])
     time = UserWallet.objects.filter(userID = userID).values_list('lastAddedMoney', flat=True)[0]
     curr_time = timezone.now()
@@ -312,7 +297,18 @@ def share_document(request):
     if not authenticated:
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
+    role = getUserRole(userID)
     receiverEmail = request.data['emailID']
+    
+    receiverID = User.objects.filter(email=receiverEmail).values_list('id', flat=True)[0]
+    receiverRole = getUserRole(receiverID)
+
+    if str(userID) == str(receiverID):
+        return Response("Sharing/Requesting with yourself not allowed", status=status.HTTP_400_BAD_REQUEST)
+
+    # if role == 'PT':
+    #     print("Harman Ludo")
+
     reportID = request.data['reportID']
     billMade = "No"
     docLink = UploadRecords.objects.filter(id=reportID).values_list('docLink', flat=True)
@@ -323,7 +319,6 @@ def share_document(request):
     if "requestID" in request.data and request.data["requestID"] != "":
         updateRecord = PendingDocumentRequests.objects.get(id = request.data["requestID"])
         emailToBeSent = User.objects.filter(id=updateRecord.userID).values_list('email', flat=True)[0]
-        print(receiverEmail, emailToBeSent)
         if receiverEmail == emailToBeSent:
             updateRecord.requestCompleted = "Yes"
             updateRecord.save(update_fields=['requestCompleted'])
@@ -345,8 +340,21 @@ def request_documents(request):
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
+    role = getUserRole(userID)
+    if role != 'PT':
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)     
+
     docType = request.data['docType']
     receiverEmail = request.data['receiverEmail']
+
+    receiverID = User.objects.filter(email=receiverEmail).values_list('id', flat=True)[0]
+    receiverRole = getUserRole(receiverID)
+    if str(userID) == str(receiverID):
+        return Response("Sharing/Requesting with yourself not allowed", status=status.HTTP_400_BAD_REQUEST)
+
+    if not (receiverRole == 'HP' or receiverRole == 'HS'):
+        return Response("Cant request document from receiver", status=status.HTTP_400_BAD_REQUEST)
+
     date = request.data['date']
     to_be_inserted = {"userID":userID, "receiverEmail":receiverEmail, "docType": docType, "date":date, "requestCompleted":"No"}
     serializer = PendingDocumentRequestsSerializer(data=to_be_inserted)
@@ -364,6 +372,10 @@ def display_pending_document_requests(request):
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
+    role = getUserRole(userID)
+    if not(role == 'HS' or role == 'HP'):
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)     
+
     receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     records = list(PendingDocumentRequests.objects.filter(requestCompleted = "No", receiverEmail = receiverEmail).values('id', 'userID', 'docType', 'date'))
     
@@ -414,7 +426,6 @@ def display_unmade_bills(request):
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
     user_email = User.objects.filter(id=userID).values_list('email', flat=True)
-    print(user_email, userID)
     role = getUserRole(userID)
     if role == "PH":
         shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType = "prescription", billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade')
@@ -522,6 +533,10 @@ def make_payment(request):
     payment.save(update_fields=['status'])
     userwallet.amount -= payment.amount
     userwallet.save(update_fields=['amount'])
+    receiverID = User.objects.filter(email=payment.receiverEmail).values_list('id', flat=True)[0]
+    receiverwallet = UserWallet.objects.get(userID=receiverID)
+    receiverwallet.amount += payment.amount
+    receiverwallet.save(update_fields=['amount'])
     return Response(data = "Success")
 
 @api_view(['POST'])
@@ -533,6 +548,10 @@ def display_all_payment_records(request):
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
+    role = getUserRole(userID)
+    if not (role == 'PT' or role == 'PH' or role == 'IF'):
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)     
+
     receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     payment_records = list(PaymentRecords.objects.filter(Q(payerID = userID) | Q(receiverEmail = receiverEmail)).values('id', 'payerID', 'receiverEmail', 'amount','status'))
     return_records = []
@@ -555,6 +574,11 @@ def generate_otp(request):
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
+    role = getUserRole(userID)
+    if not (role == 'PT' or role == 'IF'):
+        return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)     
+
+
     receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     digits = string.digits + string.ascii_uppercase
     OTP = ""
@@ -667,8 +691,6 @@ def get_file(request):
     response['Content-Length'] = os.path.getsize(file_path)    
     response['Content-Disposition'] = "attachment; filename=%s" %  img.title
     return response
-
-
 
 def getUserRole(userID):
     userRole = User.objects.filter(id=userID).values_list('role', flat=True)[0]
