@@ -30,7 +30,7 @@ function AllPayments(){
     }, []); 
 
     const [payments, setPayments] = useState([])
-    let {access_token, refresh_token} = getToken()
+    let {access_token} = getToken()
 
     const FetchPayments  =()=>{
 

@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Button, InputLabel, MenuItem, FormControl, Select, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField} from '@mui/material';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
 import { getToken } from '../services/localStorageService';
-
+import {useNavigate} from 'react-router-dom';
 
 function MyDocuments(){
 
@@ -13,7 +13,43 @@ function MyDocuments(){
     const [selectedFile, setSelectedFile] = useState(null);
     const [type, setType] = useState('');
     const [access_token, set_access_token] = useState(localStorage.getItem('access_token'))
-  
+     
+     //role based access control
+     const navigate = useNavigate()
+     var role = ''
+     useEffect(() => {
+       if(!access_token)
+         return;
+         axios({
+           method: "POST",
+           url:`${process.env.REACT_APP_BACKEND}/get_role`,
+           data:{
+               token: access_token,
+           }
+         }).then((response)=>{
+             console.log("role is",response.data.role)
+             role = response.data.role
+             if (response.data.userStatus!="AU")
+             {
+                 navigate("../../")
+             }
+        
+             else if(window.location.href=='http://localhost:3000/PatientView/MyDocuments' && role!="PT")
+             {
+               navigate("../../")
+             }
+             else if(window.location.href=='http://localhost:3000/PharmacyView/MyDocuments' && role!="PH")
+             {
+               navigate("../../")
+             }
+             else if(window.location.href=='http://localhost:3000/InsuranceFirmView/MyDocuments' && role!="IF")
+             {
+               navigate("../../")
+             }
+         }).catch((error) => {
+             navigate("../../")
+         })
+     }, []); 
 
     const [selectionModel, setSelectionModel] = useState([]);
     const [showDialog, setShowDialog] = useState(false);

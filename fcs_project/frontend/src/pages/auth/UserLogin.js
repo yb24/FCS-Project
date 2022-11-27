@@ -30,10 +30,10 @@ const UserLogin = () => {
       console.log(res.data)
       //save token
       storeToken(res.data.token)
-      storeUser(actualData)
+      //storeUser(actualData)
       //get role from token
       //1. get userid from access_token
-      let {access_token, refresh_token} = getToken()
+      let {access_token} = getToken()
       console.log("access token is :: ",access_token)
       let userID = ""
       if (access_token != null) {

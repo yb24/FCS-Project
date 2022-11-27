@@ -678,8 +678,11 @@ def get_role(request):
     if not authenticated:
         return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     role = getUserRole(userID)
-    return Response({'role':role}, status=status.HTTP_200_OK)
-
+    email = User.objects.filter(id=userID).values_list('email', flat=True)[0]
+    userStatus = User.objects.filter(id=userID).values_list('status', flat=True)[0]
+    print(role)
+    return Response({'role':role, 'email':email, 'userStatus':userStatus}, status=status.HTTP_200_OK)
+    
 @api_view(['POST'])
 def get_file(request):
     if "token" not in request.data or "file" not in request.data:

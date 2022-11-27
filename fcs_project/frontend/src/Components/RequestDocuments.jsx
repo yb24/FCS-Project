@@ -4,17 +4,41 @@ import DatePicker from "react-datepicker";
 import {Button, InputLabel, MenuItem, FormControl, Select, TextField} from '@mui/material';
 import { getToken } from '../services/localStorageService';
 import "react-datepicker/dist/react-datepicker.css";
-
+import { useNavigate } from 'react-router-dom';
 
 function RequestDocuments(){
 
+  const navigate = useNavigate()
     const [startDate, setStartDate] = useState(new Date());
     const [type, setType] = useState('');
     const [email, setEmail] = useState(null);
     const [responseMessage, setResponseMessage] = useState('');
 
 
-    let {access_token, refresh_token} = getToken()
+    
+     //role based access control
+     let {access_token} = getToken()
+     var role = ''
+     useEffect(() => {
+       if(!access_token)
+         return;
+         axios({
+           method: "POST",
+           url:`${process.env.REACT_APP_BACKEND}/get_role`,
+           data:{
+               token: access_token,
+           }
+         }).then((response)=>{
+             console.log("role is",response.data.role)
+             role = response.data.role
+             if (role!="PT" || response.data.userStatus!="AU")
+             {
+                 navigate("../")
+             }
+         }).catch((error) => {
+             navigate("../")
+         })
+     }, []); 
 
     const handleChangeType = (event) => {
         setType(event.target.value);

@@ -2,14 +2,39 @@ import React, {useState, useEffect} from 'react';
 import {Button, TextField} from '@mui/material';
 import { getToken } from '../services/localStorageService';
 import axios from "axios";
+import {Routes, Route, useNavigate, Outlet} from 'react-router-dom';
 
 function Wallet(){
 
+    const navigate = useNavigate()
     const [currBalance, setCurrBalance] = useState(0);
     const [addAmount, setAddAmount] = useState(0);
     const [responseMessage, setResponseMessage] = useState('');
 
-    let {access_token, refresh_token} = getToken();
+     //role based access control
+     let {access_token} = getToken()
+     var role = ''
+     useEffect(() => {
+       if(!access_token)
+         return;
+         axios({
+           method: "POST",
+           url:`${process.env.REACT_APP_BACKEND}/get_role`,
+           data:{
+               token: access_token,
+           }
+         }).then((response)=>{
+             console.log("role is",response.data.role)
+             role = response.data.role
+             if (!(role=='PT' || role=='PH' || role=='IF') || response.data.userStatus!="AU")
+             {
+                 navigate("../")
+             }
+         }).catch((error) => {
+             navigate("../")
+         })
+     }, []); 
+ 
 
     function GetCurrBalance(){
         axios({

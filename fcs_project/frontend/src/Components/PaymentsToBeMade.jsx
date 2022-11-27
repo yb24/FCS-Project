@@ -5,6 +5,7 @@ import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsBu
 import { getToken } from '../services/localStorageService';
 import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css'
+import {useNavigate} from 'react-router-dom';
 
 function PaymentsToBeMade(){
 
@@ -18,7 +19,31 @@ function PaymentsToBeMade(){
     const [otp, setOtp] = useState(null);
 
 
-    let {access_token, refresh_token} = getToken()
+    let {access_token} = getToken();
+    //role based access control
+    const navigate = useNavigate();
+    var role = ''
+    useEffect(() => {
+      if(!access_token)
+        return;
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_role`,
+          data:{
+              token: access_token,
+          }
+        }).then((response)=>{
+            console.log("role is",response.data.role)
+            role = response.data.role
+            if (!(role=="PT" || role=="IF") || response.data.userStatus!="AU")
+            {
+                navigate("../../")
+            }
+        }).catch((error) => {
+          navigate("../../")
+        })
+    }, []); 
+
 
     const FetchPayments  =()=>{
 

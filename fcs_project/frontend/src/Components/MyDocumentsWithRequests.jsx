@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Button, InputLabel, MenuItem, FormControl, Select, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField} from '@mui/material';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
 import { getToken } from '../services/localStorageService';
-
+import {useNavigate} from 'react-router-dom';
 
 function MyDocumentsWithRequests(){
 
@@ -14,7 +14,42 @@ function MyDocumentsWithRequests(){
     const [selectedFile, setSelectedFile] = useState(null);
     const [type, setType] = useState('');
 
-    let {access_token, refresh_token} = getToken()
+    let {access_token} = getToken()
+
+
+     //role based access control
+     const navigate = useNavigate()
+     var role = ''
+     useEffect(() => {
+       if(!access_token)
+         return;
+         axios({
+           method: "POST",
+           url:`${process.env.REACT_APP_BACKEND}/get_role`,
+           data:{
+               token: access_token,
+           }
+         }).then((response)=>{
+             console.log("role is",response.data.role)
+             role = response.data.role
+             if (response.data.userStatus!="AU")
+             {
+                 navigate("../../")
+             }
+        
+             else if(window.location.href=='http://localhost:3000/HospitalView/MyDocuments' && role!="HS")
+             {
+               navigate("../../")
+             }
+             else if(window.location.href=='http://localhost:3000/HealthcareProfessionalView/MyDocuments' && role!="HP")
+             {
+               navigate("../../")
+             }
+            
+         }).catch((error) => {
+             navigate("../../")
+         })
+     }, []); 
     
     //For document
     const [selectionModel, setSelectionModel] = useState([]);

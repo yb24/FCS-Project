@@ -2,8 +2,8 @@ import { removeToken, removeUser, getToken, getUser } from "../services/localSto
 import { useProfileUserMutation, useChangeUserPasswordMutation } from "../services/userAuthApi";
 import { TextField, FormControlLabel, Checkbox, Box, Alert, Typography, Button, Grid } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const Profile = () => {
     console.log("process :",`${process.env.REACT_APP_BACKEND}`)
@@ -13,19 +13,67 @@ const Profile = () => {
     const [server_error, setServerError] = useState({})
     const [userInfo, setUserInfo] = useState({})
     const [client_error, setClientError] = useState({status: false, msg: "", type: ""})
-    let {username, useremail} = getUser()
-    let {access_token, refresh_token} = getToken()
+    //let {username, useremail} = getUser()
+    let {access_token} = getToken()
     let userID = ""
     var regName = /\d+$/g; 
     var regPhone=/^\d{10}$/;
     var regVAadhar=/^\d{16}$/;
     if (access_token != null) {
+      try 
+      {
         userID = JSON.parse(window.atob(access_token.split('.')[1]))
         userID = userID['user_id'] 
         console.log("userid", userID)
+      }
+      catch (err)
+    {
+      console.log("GOT ERROR")
+    }
     }
 
     const navigate = useNavigate()
+    const [useremail, setUserEmail] = useState('')
+    //role based access control
+    var role = ''
+    useEffect(() => {
+      console.log("URL",window.location.href)
+      if(!access_token)
+        return;
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_role`,
+          data:{
+              token: access_token,
+          }
+        }).then((response)=>{
+            console.log("role is",response.data.role)
+            role = response.data.role
+            setUserEmail(response.data.email)
+            if (response.data.userStatus!="AU")
+            {
+                navigate("../../")
+            }
+            else if(window.location.href=='http://localhost:3000/HealthcareProfessioanlView/Profile' && !(role=="HP" || role=="HS"))
+            {
+              navigate("../../")
+            }
+            else if(window.location.href=='http://localhost:3000/PatientView/Profile' && role!="PT")
+            {
+              navigate("../../")
+            }
+            else if(window.location.href=='http://localhost:3000/PharmacyView/Profile' && role!="PH")
+            {
+              navigate("../../")
+            }
+            else if(window.location.href=='http://localhost:3000/InsuranceFirmView/Profile' && role!="IF")
+            {
+              navigate("../../")
+            }
+        }).catch((error) => {
+            navigate("../../")
+        })
+    }, []); 
 
     const handleLogout = () => {
         console.log("Logout Clicked");
