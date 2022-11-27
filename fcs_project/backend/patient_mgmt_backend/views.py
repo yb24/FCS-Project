@@ -126,65 +126,77 @@ class UserChangePasswordView(APIView):
 
 @api_view(['DELETE'])
 def delete_upload_records(request):
-    if "token" not in request.data or "reportID" not in request.data:
-        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-    authenticated, userId = verify_user(request.data["token"])
-    if not authenticated:
-        return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     try:
+        if "token" not in request.data or "reportID" not in request.data:
+            return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        authenticated, userId = verify_user(request.data["token"])
+        if not authenticated:
+            return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    
         report_id = request.data["reportID"]
         UploadRecords.objects.filter(id=report_id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    except UploadRecords.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    except:
+        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def display_upload_records(request):
-    if "token" not in request.data:
-        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-    authenticated, userId = verify_user(request.data["token"])
-    if not authenticated:
-        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
-    note = UploadRecords.objects.filter(userID=userId)
-    serializer = UploadRecordsSerializer(note, many=True)
-    return Response(serializer.data)
+    try:
+        if "token" not in request.data:
+            return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        authenticated, userId = verify_user(request.data["token"])
+        if not authenticated:
+            return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        note = UploadRecords.objects.filter(userID=userId)
+        serializer = UploadRecordsSerializer(note, many=True)
+        return Response(serializer.data)
+    except:
+        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def insert_upload_records(request):
-    if "token" not in request.data or "docType" not in request.data or "title" not in request.data or "content" not in request.data or "image" not in request.data:
-        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-    authenticated, userID = verify_user(request.data["token"])
-    if not authenticated:
-        return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
-    
-    cur_time = str(timezone.localtime())
-    cur_time = cur_time.replace(' ',':')
-    request.data["title"] = str(request.data["title"]) + "_" + cur_time + "_" + str(userID)
-    record = dict()
-    record['userID'] = userID
-    record['docType'] = request.data['docType'] 
-    record['docLink'] = request.data["title"]
-    request.data.pop('token')
-    request.data.pop('docType')
-    
-    posts_serializer = PostSerializer(data=request.data)
-    if posts_serializer.is_valid() == False:
-        return Response("Error while insertion (file size too big or invalid file type)", status=status.HTTP_400_BAD_REQUEST)
-    posts_serializer.save()  
+    try:
+        if "token" not in request.data or "docType" not in request.data or "title" not in request.data or "content" not in request.data or "image" not in request.data:
+            return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        authenticated, userID = verify_user(request.data["token"])
+        if not authenticated:
+            return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+        
+        cur_time = str(timezone.localtime())
+        cur_time = cur_time.replace(' ',':')
+        request.data["title"] = str(request.data["title"]) + "_" + cur_time + "_" + str(userID)
+        record = dict()
+        record['userID'] = userID
+        if request.data['docType'] not in ["prescription", "test_result", "bill", "insurance_document", "discharge_summary"]:
+            return Response("Invalid Data", status=status.HTTP_400_BAD_REQUEST)
+        record['docType'] = request.data['docType'] 
+        record['docLink'] = request.data["title"]
+        request.data.pop('token')
+        request.data.pop('docType')
+        
+        posts_serializer = PostSerializer(data=request.data)
+        if posts_serializer.is_valid() == False:
+            return Response("Error while insertion (file size too big or invalid file type)", status=status.HTTP_400_BAD_REQUEST)
+        posts_serializer.save()  
 
-    serializer = UploadRecordsSerializer(data=record)
-    if serializer.is_valid():   
-        serializer.save()
-        return Response(data = "Success", status=status.HTTP_201_CREATED)
-    return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
+        serializer = UploadRecordsSerializer(data=record)
+        if serializer.is_valid():   
+            serializer.save()
+            return Response(data = "Success", status=status.HTTP_201_CREATED)
+        return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def insert_user_table(request):
-    serializer = UserSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(data = "Success", status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data = "Success", status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -638,24 +650,23 @@ def generate_otp_registration(request):
     return Response(data = "Success")
 
 def verify_user(token):
-    secret = bytes(os.getenv('SECRET_KEY'), "latin1")
-    split_token = token.split(".")
-    encoded_header = split_token[0]
-    encoded_payload = split_token[1]
-    encoded_signature = split_token[2]
-
-    # Validating token's signature against supplied secret
-    msg = bytes(encoded_header + "." + encoded_payload, "latin1")
     try:
-        calculated_signature_1 = hmac.new(secret, msg, hashlib.sha256).digest()
-    except Exception as e:
-        print(e)
+        secret = bytes(os.getenv('SECRET_KEY'), "latin1")
+        split_token = token.split(".")
+        encoded_header = split_token[0]
+        encoded_payload = split_token[1]
+        encoded_signature = split_token[2]
 
-    encoded_calculated_signature = str(base64.urlsafe_b64encode(calculated_signature_1), "latin1").rstrip("=")
-    payload = ast.literal_eval(str(base64.urlsafe_b64decode(encoded_payload + "==="), "latin1"))
-    if encoded_calculated_signature == encoded_signature:
-        return True, payload['user_id']
-    return False, -1
+        # Validating token's signature against supplied secret
+        msg = bytes(encoded_header + "." + encoded_payload, "latin1")
+        calculated_signature_1 = hmac.new(secret, msg, hashlib.sha256).digest()
+        encoded_calculated_signature = str(base64.urlsafe_b64encode(calculated_signature_1), "latin1").rstrip("=")
+        payload = ast.literal_eval(str(base64.urlsafe_b64decode(encoded_payload + "==="), "latin1"))
+        if encoded_calculated_signature == encoded_signature:
+            return True, payload['user_id']
+        return False, -1
+    except:
+        return False, -1
 
 
 @api_view(['POST'])

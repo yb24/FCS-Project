@@ -36,7 +36,7 @@ import Wallet from "./Components/Wallet";
 function App() {
   const {access_token} = getToken()
   // const [role, setRole] = useState([]);
-  const role = "PT"
+  const role = "PT";
 
   useEffect(() => {
     if(!access_token)
