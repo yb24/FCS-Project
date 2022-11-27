@@ -30,6 +30,8 @@ import Profile from './Components/Profile';
 import RequestDocuments from "./Components/RequestDocuments";
 import { getToken } from "./services/localStorageService";
 import MyDocumentsWithRequests from "./Components/MyDocumentsWithRequests";
+import Wallet from "./Components/Wallet";
+
 
 function App() {
   const {access_token} = getToken()
@@ -65,6 +67,7 @@ function App() {
           {access_token != null && role == "PT" && <Route path="PatientView" >
           <Route index element={<PatientView />} /> 
           <Route path="Profile" element={<Profile />} />
+          <Route path="Wallet" element={<Wallet />} />
           <Route path="HealthcareProfessionals" element={<HealthcareProfessionalsList />} />
           <Route path="Hospitals" element={<HospitalsList />} />
           <Route path="Pharmacies" element={<PharmaciesList />} />

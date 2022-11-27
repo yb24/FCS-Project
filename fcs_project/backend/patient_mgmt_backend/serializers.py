@@ -97,3 +97,8 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = '__all__'
+
+class UserWalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserWallet
+        fields = ['id','userID','amount','lastAddedMoney']

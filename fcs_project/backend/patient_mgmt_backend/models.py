@@ -173,4 +173,15 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+class UserWallet(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    userID = models.CharField(max_length=100)
+    amount = models.FloatField()
+    lastAddedMoney = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(check=models.Q(amount__gte = 0), name='amount_gte_0')
+        ]
+
    

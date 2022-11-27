@@ -30,4 +30,6 @@ urlpatterns = [
     path('display_pending_document_requests', display_pending_document_requests),
     path('get_file',get_file),
     path('get_role',get_role),
+    path('get_curr_balance', get_curr_balance),
+    path('add_money', add_money),
 ]   

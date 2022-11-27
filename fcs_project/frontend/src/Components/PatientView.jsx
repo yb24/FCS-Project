@@ -10,6 +10,10 @@ function PatientView(){
         // navigate to Healthcare professionals
         navigate('Profile');
     };
+    const navigateToWallet = () => {
+        // navigate to Healthcare professionals
+        navigate('Wallet');
+    };
     const navigateToHealthCareProfessionals = () => {
         // navigate to Healthcare professionals
         navigate('HealthcareProfessionals');
@@ -58,6 +62,9 @@ function PatientView(){
 
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToProfile}>Profile</Button>
+                </Grid>
+                <Grid item xs={6} md={8}>
+                    <Button variant="contained" onClick={navigateToWallet}>Wallet</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToHealthCareProfessionals}>Healthcare Professionals</Button>

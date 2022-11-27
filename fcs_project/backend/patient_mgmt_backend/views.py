@@ -53,18 +53,18 @@ class UserRegistrationView(APIView):
     userEmail = request.data['email']
     otp_record = OtpTableRegistration.objects.get(userEmail=userEmail)
     if not otp_record:
-        print("here1")
         return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
     OtpTableRegistration.objects.filter(userEmail=userEmail).delete()
     if otp_record.otp != otp or float(otp_record.timeStamp) < time.time() - 120:
-        print("here2")
-        print(otp_record.otp != otp)
-        print(otp)
-        print(otp_record.otp)
         return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
-
     user = serializer.save()
     token = get_tokens_for_user(user)
+    userID = User.objects.filter(email=request.data['email']).values_list('id', flat=True)[0]
+    wallet_data = {'userID':str(userID), 'amount':1000.0}
+    walletserializer = UserWalletSerializer(data=wallet_data)
+    if not walletserializer.is_valid():
+        return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
+    walletserializer.save()
     return Response({'token':token, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED) #also returned user
 
 class UserLoginView(APIView):
@@ -274,6 +274,37 @@ def get_all_hospital(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
+def get_curr_balance(request):
+    if "token" not in request.data:
+        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+    authenticated, userID = verify_user(request.data["token"])
+    if not authenticated:
+        return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    balance = UserWallet.objects.filter(userID=userID).values_list('amount', flat=True)[0]
+    return Response(data = balance, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def add_money(request):
+    if "token" not in request.data or "amount" not in request.data:
+        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+    authenticated, userID = verify_user(request.data["token"])
+    if not authenticated:
+        return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
+    amount = float(request.data["amount"])
+    time = UserWallet.objects.filter(userID = userID).values_list('lastAddedMoney', flat=True)[0]
+    curr_time = timezone.now()
+    added_recently = (time > curr_time - timezone.timedelta(minutes=10))
+    if amount < 0 or amount > 1000 or added_recently:
+        return Response("Input Amount Invalid or Money Added Recently", status=status.HTTP_400_BAD_REQUEST)
+    wallet = UserWallet.objects.get(userID = userID)
+    wallet.amount += amount
+    wallet.lastAddedMoney = curr_time
+    wallet.save(update_fields=['amount','lastAddedMoney'])
+    print(list(UserWallet.objects.filter(userID = userID).values('userID','amount','lastAddedMoney')))
+    return Response(status=status.HTTP_201_CREATED)
+    
+
+@api_view(['POST'])
 def share_document(request):
     if "token" not in request.data or "emailID" not in request.data or "reportID" not in request.data:
         return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
@@ -416,7 +447,7 @@ def display_unmade_bills(request):
 @api_view(['POST'])
 def make_bill(request):
     if "token" not in request.data or "amount" not in request.data or "sharedByEmail" not in request.data or "sharedRecordID" not in request.data:
-        return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        return Response("Incorrect Role", status=status.HTTP_400_BAD_REQUEST)
     
     authenticated, userID = verify_user(request.data["token"])
     if not authenticated:
@@ -427,8 +458,10 @@ def make_bill(request):
     updateRecord.save(update_fields=['billMade'])
     payerID = ""
     receiverEmail = ""
-    amount = request.data['amount']
-    status = "Unpaid"
+    amount = float(request.data['amount'])
+    payment_status = "Unpaid"
+    if amount < 0 or amount > 1000:
+        return Response("Bill Amount Invalid", status=status.HTTP_400_BAD_REQUEST)
     if role == 'IF':
         payerID = userID
         receiverEmail = request.data['sharedByEmail']
@@ -436,12 +469,14 @@ def make_bill(request):
         payerID = User.objects.filter(email=request.data['sharedByEmail']).values_list('id', flat=True)[0]
         receiverEmail = User.objects.filter(id=userID).values_list('email', flat=True)[0]
     else:
-        return Response(data = "Incorrect Role", status=status.HTTP_400_BAD_REQUEST)
-    record = {"payerID":payerID, "receiverEmail":receiverEmail, "status":status, "amount":amount}
+        return Response("Incorrect Role", status=status.HTTP_400_BAD_REQUEST)
+    record = {"payerID":str(payerID), "receiverEmail":receiverEmail, "status":payment_status, "amount":amount}
     serializer = PaymentRecordsSerializer(data=record)
     if serializer.is_valid():
         serializer.save()
         return Response(data = "Success")
+    print(serializer.errors)
+    return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -475,13 +510,18 @@ def make_payment(request):
     otp = str(request.data['otp'])
     otp_record = OtpTable.objects.get(userID=userID)
     if not otp_record:
-        return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
+        return Response("OTP invalid", status=status.HTTP_400_BAD_REQUEST)
     OtpTable.objects.filter(userID=userID).delete()
     if otp_record.otp != otp or float(otp_record.timeStamp) < time.time() - 120:
-        return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
+        return Response("OTP invalid", status=status.HTTP_400_BAD_REQUEST)
+    userwallet = UserWallet.objects.get(userID=userID)
     payment = PaymentRecords.objects.get(id = request.data['paymentID'])
+    if payment.amount > userwallet.amount:
+        return Response("Wallet has insufficient money", status=status.HTTP_400_BAD_REQUEST)
     payment.status = "Paid"
     payment.save(update_fields=['status'])
+    userwallet.amount -= payment.amount
+    userwallet.save(update_fields=['amount'])
     return Response(data = "Success")
 
 @api_view(['POST'])
