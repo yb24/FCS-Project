@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Button, InputLabel, MenuItem, FormControl, Select, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField} from '@mui/material';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
 import { getToken } from '../services/localStorageService';
-
+import {useNavigate} from 'react-router-dom';
 
 function PaymentsToBeMade(){
 
@@ -17,9 +17,40 @@ function PaymentsToBeMade(){
     const [otp, setOtp] = useState(null);
 
 
-    let {access_token, refresh_token} = getToken()
-    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
-    userID = userID['user_id'] 
+    let {access_token} = getToken()
+    let userID=''
+    try
+    {
+      userID = JSON.parse(window.atob(access_token.split('.')[1]))
+      userID = userID['user_id'] 
+    }
+    catch (err)
+    {
+      console.log("GOT ERROR")
+    }
+    //role based access control
+    const navigate = useNavigate();
+    var role = ''
+    useEffect(() => {
+      if(!access_token)
+        return;
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_role`,
+          data:{
+              token: access_token,
+          }
+        }).then((response)=>{
+            console.log("role is",response.data.role)
+            role = response.data.role
+            if (!(role=="PT" || role=="IF") || response.data.userStatus!="AU")
+            {
+                navigate("../../")
+            }
+        }).catch((error) => {
+          navigate("../../")
+        })
+    }, []); 
 
     const FetchPayments  =()=>{
 

@@ -30,11 +30,10 @@ import Profile from './Components/Profile';
 import { getToken } from "./services/localStorageService";
 
 function App() {
-  const {access_token} = getToken()
-  const [role, setRole] = useState([]);
+  //const [role, setRole] = useState([]);
   // const role = "PT"
 
-  useEffect(() => {
+  /*useEffect(() => {
     if(!access_token)
       return;
       axios({
@@ -48,7 +47,7 @@ function App() {
           // setRole(response.)
       }).catch((error) => {
       })
-  }, []); 
+  }, []); */
 
   return (
     <>
@@ -60,7 +59,7 @@ function App() {
           </Route>
           {/*<Route path="*" element={<h1>Error 404 Page not found !!</h1>} />*/}
 
-          {access_token != null && role == "PT" && <Route path="PatientView" >
+          {<Route path="PatientView" >
           <Route index element={<PatientView />} /> 
           <Route path="Profile" element={<Profile />} />
           <Route path="HealthcareProfessionals" element={<HealthcareProfessionalsList />} />
@@ -74,7 +73,7 @@ function App() {
         </Route>}    
 
         {/* User is Healthcare Professional */}
-        {access_token != null && role == "HP" && <Route path="HealthcareProfessioanlView" >
+        {<Route path="HealthcareProfessioanlView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
@@ -82,7 +81,7 @@ function App() {
         </Route> } 
 
         {/* User is Hospital */}
-        {access_token != null && role == "HS" && <Route path="HospitalView" >
+        {<Route path="HospitalView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
@@ -91,7 +90,7 @@ function App() {
 
 
       {/* User is Pharmacy */}
-      {access_token != null && role == "PH" && <Route path="PharmacyView" >
+      {<Route path="PharmacyView" >
           <Route index element={<PharmacyView />} /> 
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
@@ -102,7 +101,7 @@ function App() {
 
 
       {/* User is Insurance Firm */}
-      {access_token != null && role == "IF" && <Route path="InsuranceFirmView" >
+      {<Route path="InsuranceFirmView" >
           <Route index element={<InsuranceFirmView />} /> 
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />

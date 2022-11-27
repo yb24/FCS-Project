@@ -3,36 +3,58 @@ import { getUser } from '../services/localStorageService';
 import { useNavigate } from 'react-router-dom';
 import { removeToken, removeUser, getToken } from '../services/localStorageService';
 import { useProfileUserMutation } from '../services/userAuthApi'
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
 
 const Home = () => {
   const [profileUser, {isLoading}] = useProfileUserMutation()
-  let {username, useremail} = getUser()
   //1. get decoded userid
-  let {access_token, refresh_token} = getToken()
+  let {access_token} = getToken()
   console.log(access_token)
   let userID = ""
 
   let status1 = "AU"
   console.log("status : ", status1)
   if (access_token != null) {
-    userID = JSON.parse(window.atob(access_token.split('.')[1]))
-    userID = userID['user_id'] 
-    console.log("userid", userID)
-    //also get the status
-    const actualData1 = {
-      id: userID,
+    try 
+    {
+      userID = JSON.parse(window.atob(access_token.split('.')[1]))
+      userID = userID['user_id'] 
+      console.log("userid", userID)
     }
+    catch (err)
+    {
+      console.log("GOT ERROR")
+    }
+    //also get the status
 
     //const res1 = await profileUser(actualData1)
     //status1 = 'AU'//res1.data['status']
   }
   const navigate = useNavigate()
+  const [useremail, setUserEmail] = useState('')
+  useEffect(() => {
+    if(!access_token)
+      return;
+      axios({
+        method: "POST",
+        url:`${process.env.REACT_APP_BACKEND}/get_role`,
+        data:{
+            token: access_token,
+        }
+      }).then((response)=>{
+          console.log("homejs",response.data)
+          setUserEmail(response.data.email)
+      }).catch((error) => {
+      })
+  }, []); 
+
 
   const handleLogout = () => {
     console.log("Logout Clicked");
     //remove tokens
     removeToken()
-    removeUser()
+    //removeUser()
     navigate('/login')
   }
 
@@ -114,10 +136,10 @@ const Home = () => {
       <Grid item sm={10}>
         <h1>Dashboard</h1>
         <hr />
-        {useremail == null && <p>You are not logged in</p>}
+        {useremail == '' && <p>You are not logged in</p>}
         {status1 == 'NA' && <p>You are not authenticated</p>}
         {status1 == 'RM' && <p>You have been removed from the system</p>}
-        {status1=='AU' && useremail != null && 
+        {status1=='AU' && useremail != '' && 
         <>
         <p>Hello {useremail}</p> 
         <Button variant='contained' color='warning' size='large' onClick={handleLogout} sx={{ mt: 8 }}>Logout</Button>

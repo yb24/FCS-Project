@@ -8,7 +8,7 @@ import { storeUser } from '../../services/localStorageService';
 const Registration = () => {
   const [server_error, setServerError] = useState({})
   const [client_error, setClientError] = useState({status: false, msg: "", type: ""})
-  const [notes, setNotes] = useState(['contact','vAadhar']);
+  const [notes, setNotes] = useState('PT');
   const navigate = useNavigate();
   const [registerUser, {isLoading}] = useRegisterUserMutation()
   const [OtpGenerator] = useOtpGeneratorMutation()
@@ -47,53 +47,14 @@ const Registration = () => {
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='image2Path' name='image2Path' label='image2Path' />
     */
     var temprole = document.getElementById('role').value
-    //1. patient 
-    if (temprole=='PT')
-    {
-      console.log("entered PT")
-      //add elms to div roleBasedAddition
-      notes.length=0
-      setNotes(notes)
-      notes.push('contact');
-      notes.push('vAadhar');
-      console.log(notes)
-      setNotes([ ...notes ]);
-    }
-    //2. hs, ph, if
-    else if (temprole=='HS' || temprole=='PH' || temprole=='IF')
-    {
-      console.log("entered org")
-      notes.length=0
-      setNotes(notes)
-      notes.push('contact');
-      notes.push('address');
-      notes.push('healthLicense');
-      notes.push('description');
-      notes.push('location');
-      notes.push('image1Path');
-      notes.push('image2Path');
-      console.log(notes)
-      setNotes([ ...notes ]);
-    }
-    //3. hp 
-    else if (temprole=='HP')
-    {
-      console.log("entered HP")
-      notes.length=0
-      setNotes(notes)
-      notes.push('contact');
-      notes.push('vAadhar');
-      notes.push('healthLicense');
-      console.log(notes)
-      setNotes([ ...notes ]);
-    }
-    //4. ad - TO HANDLE?
+    setNotes(temprole)    
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     var actualData = {}
+    console.log("ROLE: ", data.get('role'))
     if (data.get('role')=='PT')
     {
       actualData = {
@@ -126,7 +87,7 @@ const Registration = () => {
         role: data.get('role'),
         address: data.get('address'),
         contact: data.get('contact'),
-        vAadhar: "NA",
+        vAadhar: "0000000000000000",
         healthLicense: data.get('healthLicense'),
         description: data.get('description'),
         location: data.get('location'),
@@ -192,7 +153,6 @@ const Registration = () => {
     else
     {
       setClientError({ status: true, msg: "Filled correctly", type: 'success' })
-      
     }
     //empty out error after validation done
     const res = await registerUser(actualData)
@@ -206,7 +166,7 @@ const Registration = () => {
       console.log(res.data)
       //save token
       storeToken(res.data.token)
-      storeUser(actualData)
+      //storeUser(actualData)
       //redirect based on user role
       navigate('../')
       /*if (res_temp.data['status']=='NA' || res_temp.data['status']=='RM')
@@ -256,12 +216,29 @@ const Registration = () => {
         <option value="PH">Pharmacy</option>
         <option value="IF">Insurance Firm</option>
       </select>
-      <div id="roleBasedAddition">
-      {notes.map((item, index)=> {
-                return <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth key={index} id={item} name={item} label={item}/>
-            })
-        }
+      {notes=='PT' && 
+      <div>
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='contact' name='contact' label='contact' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='vAadhar' name='vAadhar' label='virtual Aadhar' />
       </div>
+      }
+      {(notes=='HS' || notes=='PH' || notes=='IF') &&
+      <div>
+        <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='address' name='address' label='address' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='contact' name='contact' label='contact' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='healthLicense' name='healthLicense' label='healthLicense' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='description' name='description' label='description'/>
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='location' name='location' label='location' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='image1Path' name='image1Path' label='image1Path' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='image2Path' name='image2Path' label='image2Path' />
+      </div>
+      }
+      {notes=='HP' && 
+      <div>
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='contact' name='contact' label='contact' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='vAadhar' name='vAadhar' label='virtual Aadhar' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='healthLicense' name='healthLicense' label='healthLicense' />
+      </div>}
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='password' name='password' label='Password' type='password' />
       {server_error.password ? <Typography>{server_error.password[0]}</Typography> : ""}
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='password2' name='password2' label='Confirm Password' type='password' />

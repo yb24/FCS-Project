@@ -2,11 +2,35 @@ import React, {useState, useEffect} from 'react';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
 import axios from 'axios';
 import { getToken } from '../services/localStorageService';
+import {useNavigate} from 'react-router-dom';
 
 function InsuranceFirmsList(){
 
     const [insuranceFirms, setInsuranceFirms] = useState([]);
-    let {access_token, refresh_token} = getToken()
+    let {access_token} = getToken()
+    //role based access control
+    const navigate = useNavigate();
+    var role = ''
+    useEffect(() => {
+      if(!access_token)
+        return;
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_role`,
+          data:{
+              token: access_token,
+          }
+        }).then((response)=>{
+            console.log("role is",response.data.role)
+            role = response.data.role
+            if (role!="PT" || response.data.userStatus!="AU")
+            {
+                navigate("../../")
+            }
+        }).catch((error) => {
+          navigate("../../")
+        })
+    }, []); 
 
     const FetchInsuranceFirms = ()=>{
 

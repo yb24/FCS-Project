@@ -555,8 +555,10 @@ def get_role(request):
     if not authenticated:
         return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     role = User.objects.filter(id=userID).values_list('role', flat=True)[0]
+    email = User.objects.filter(id=userID).values_list('email', flat=True)[0]
+    userStatus = User.objects.filter(id=userID).values_list('status', flat=True)[0]
     print(role)
-    return Response({'role':role}, status=status.HTTP_200_OK)
+    return Response({'role':role, 'email':email, 'userStatus':userStatus}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def get_file(request):

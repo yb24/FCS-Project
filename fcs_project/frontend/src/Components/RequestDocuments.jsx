@@ -14,7 +14,7 @@ function RequestDocuments(){
     const [responseMessage, setResponseMessage] = useState('');
 
 
-    let {access_token, refresh_token} = getToken()
+    let {access_token} = getToken()
     let userID = access_token?JSON.parse(window.atob(access_token.split('.')[1])):""
     userID = userID['user_id'] 
 
