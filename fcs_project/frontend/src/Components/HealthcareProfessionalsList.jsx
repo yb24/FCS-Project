@@ -11,7 +11,6 @@ function HealthcareProfessionalsList(){
     let {access_token, refresh_token} = getToken()
 
       const FetchHealthcareProfessionals = ()=>{
-
         //make axios call here
         axios({
             method: "POST",
@@ -21,21 +20,17 @@ function HealthcareProfessionalsList(){
             }
           }).then((response)=>{
             const data = response.data
-            console.log(data)
             setHealthcareProfessionals(data)
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response);
+              console.log(error.response.data)
               }
           })
        
 
     };
     useEffect(()=>{
-
-        
-        FetchHealthcareProfessionals();
-
+      FetchHealthcareProfessionals();
     },[]);
 
 

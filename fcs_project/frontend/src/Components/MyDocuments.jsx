@@ -13,9 +13,7 @@ function MyDocuments(){
     const [selectedFile, setSelectedFile] = useState(null);
     const [type, setType] = useState('');
     const [access_token, set_access_token] = useState(localStorage.getItem('access_token'))
-    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
-    userID = userID['user_id'] 
-    
+  
 
     const [selectionModel, setSelectionModel] = useState([]);
     const [showDialog, setShowDialog] = useState(false);
@@ -32,17 +30,13 @@ function MyDocuments(){
         url:`${process.env.REACT_APP_BACKEND}/display_upload_records`,
         data:{
             token: access_token,
-            userID: userID,
         }
       }).then((response)=>{
         const data = response.data
-        console.log(data)
         setMyDocuments(data)
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
-         
-
+          console.log(error.response.data);
           }
       })
     }
@@ -59,7 +53,6 @@ function MyDocuments(){
         url:`${process.env.REACT_APP_BACKEND}/delete_upload_records`,
         data:{
             token: access_token,
-            UserID:userID,
             reportID: report_id,
         }
       }).then((response)=>{
@@ -108,7 +101,7 @@ function MyDocuments(){
         FetchMyDocuments()
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
+          console.log(error.response.data);
           setResponseMessage("Error occurred due to unsupported file type, size limit, or unauthorized access.")
           }
       })
@@ -180,16 +173,14 @@ function MyDocuments(){
           url:`${process.env.REACT_APP_BACKEND}/share_document`,
           data:{
               token: access_token,
-              userID:userID,
               reportID: reportID,
               emailID : emailID
           }
         }).then((response)=>{
-          console.log(response)
           setResponseMessage("File shared successfully!")
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            console.log(error.response.data);
             setResponseMessage("File could not be shared.")
             }
         })
@@ -213,7 +204,7 @@ function MyDocuments(){
 
 
       const myDocumentsColumns = [
-        {field: 'userID', headerName: "User ID", width:300},
+       
         { field: 'docType', headerName: 'Type of Document', width: 300 },
         { field: 'docLink', headerName: 'Document', width:600 },
       ];
@@ -241,13 +232,10 @@ function MyDocuments(){
           },
           responseType:'blob',
         }).then((response)=>{
-          
           window.open((URL.createObjectURL(response.data)), '_blank')
-      
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
-            
+            console.log(error.response.data);
             }
             
         })
@@ -303,7 +291,7 @@ function MyDocuments(){
             </Select>
         </FormControl>
                 {/* <TextField onChange={handleDocLink} /> */}
-                <p>Allowed file types: .pdf, .txt, .jpeg, .jpg, .png</p>
+                <p>Allowed file types: .pdf, .txt, .jpeg, .jpg, .png (Size Limit: 2MB))</p>
                 <input type="file" onChange={onFileChange} />
                 <Button variant = "contained" onClick={onFileUpload}>
                   Upload!

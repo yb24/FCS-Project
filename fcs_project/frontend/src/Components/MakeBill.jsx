@@ -15,8 +15,6 @@ function MakeBill(){
     const [amount, setAmount] = useState(null)
 
     let {access_token, refresh_token} = getToken()
-    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
-    userID = userID['user_id'] 
 
     const FetchSharedDocuments  =()=>{
 
@@ -25,8 +23,6 @@ function MakeBill(){
         url:`${process.env.REACT_APP_BACKEND}/display_unmade_bills`,
         data:{
             token: access_token,
-            userID: userID,
-            role: 'PH'
         }
       }).then((response)=>{
         const data = response.data
@@ -94,11 +90,9 @@ function MakeBill(){
           url:`${process.env.REACT_APP_BACKEND}/make_bill`,
           data:{
               token: access_token,
-              userID: userID,
               sharedByEmail : sharedByEmail,
               sharedRecordID: id,
               amount: billAmount,
-              role: 'PH'
           }
         }).then((response)=>{
           const data = response.data
@@ -161,7 +155,7 @@ function MakeBill(){
       
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            console.log(error.response.data);
           }
         
   

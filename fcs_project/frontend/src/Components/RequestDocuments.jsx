@@ -15,8 +15,6 @@ function RequestDocuments(){
 
 
     let {access_token, refresh_token} = getToken()
-    let userID = access_token?JSON.parse(window.atob(access_token.split('.')[1])):""
-    userID = userID['user_id'] 
 
     const handleChangeType = (event) => {
         setType(event.target.value);
@@ -37,94 +35,18 @@ function RequestDocuments(){
             }
           }).then((response)=>{
             const data = response.data
-            console.log(data)
             setType(null);
             setEmail(null);
             setStartDate(new Date());
             setResponseMessage("Document requested successfully!")
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response);
+              console.log(error.response.data);
             }
             setResponseMessage("Error in requesting document!")
 
           })
     };
-
-
-
-
-
-
-
-
-
-
-
-    const [state, setState] = useState({
-      title: '',
-      content: '',
-      image: null
-    });
-  
-    const handleChange = (e) => {
-      setState({...state, 
-        [e.target.id]: e.target.value
-      })
-    };
-  
-    const handleImageChange = (e) => {
-      setState({...state,
-        image: e.target.files[0]
-      })
-    };
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      console.log(state);
-      let form_data = new FormData();
-      form_data.append('image', state.image, state.image.name);
-      form_data.append('title', state.title);
-      form_data.append('content', state.content);
-      let url = 'http://127.0.0.1:8000/api/user/upload_doc';
-      axios.post(url, form_data, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-          .then(res => {
-            console.log(res.data);
-          })
-          .catch(err => console.log(err))
-    };
-
-    const [file, setFile] = useState(null);
-
-    const [img, setImg] = useState('')
-    const aryanHandle = () =>{
-      axios({
-        method: "POST",
-        url:`${process.env.REACT_APP_BACKEND}/get_file`,
-        data:{
-            file:"VPN.pdf_2022-11-26:11:35:49.965613+00:00_11"
-        },
-        responseType:'blob',
-      }).then((response)=>{
-        
-        console.log(response.data)
-        // setImg(response.data)
-        // let fileNew = new File([response.data], "newFile")
-        // console.log(img)
-        console.log(URL.createObjectURL(response.data))
-    
-      }).catch((error) => {
-        if (error.response) {
-          console.log(error.response);
-        }
-      
-
-      })
-    }
 
     return(
         <div>
@@ -175,33 +97,7 @@ function RequestDocuments(){
             <br></br>
 
             <p>{responseMessage}</p>
-
-            <div className="Appp">
-            <form onSubmit={handleSubmit}>
-          <p>
-            <input type="text" placeholder='Title' id='title' value={state.title} onChange={handleChange} required/>
-          </p>
-          <p>
-            <input type="text" placeholder='Content' id='content' value={state.content} onChange={handleChange} required/>
-
-          </p>
-          <p>
-            <input type="file"
-                   id="image"
-                   accept="image/png, image/jpeg"  onChange={handleImageChange} required/>
-          </p>
-          <input type="submit"/>
-        </form>
-      </div>
-
-
-
-      <Button variant = "contained" onClick={aryanHandle}>
-                  Aryan button
-            </Button>
-
-            {/* {img?<img src={img} alt="Italian Trulli"> </img>:""} */}
-
+            
         </div>
 
     )

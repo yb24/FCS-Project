@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useRegisterUserMutation, useOtpGeneratorMutation } from '../../services/userAuthApi'
 import { storeToken } from '../../services/localStorageService';
 import { storeUser } from '../../services/localStorageService';
+import Keyboard from 'react-simple-keyboard';
+import 'react-simple-keyboard/build/css/index.css';
 
 const Registration = () => {
   const [server_error, setServerError] = useState({})
@@ -12,6 +14,7 @@ const Registration = () => {
   const navigate = useNavigate();
   const [registerUser, {isLoading}] = useRegisterUserMutation()
   const [OtpGenerator] = useOtpGeneratorMutation()
+  const [otp, setOtp] = useState('');
   var regName = /\d+$/g; 
   var regEmail=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g;
   var regPhone=/^\d{10}$/;
@@ -154,7 +157,7 @@ const Registration = () => {
         image1Path: "NA",
         image2Path: "NA",
         status: 'NA',
-        otp:data.get('otp'),
+        otp:otp,
       }
     }
     console.log(actualData)
@@ -172,11 +175,11 @@ const Registration = () => {
       return
     }
     //3. valid otp - numeric
-    else if (isNaN(actualData.otp))
-    {
-      setClientError({ status: true, msg: "otp field is incorrectly filled", type: 'error' })
-      return
-    }
+    // else if (isNaN(actualData.otp))
+    // {
+    //   setClientError({ status: true, msg: "otp field is incorrectly filled", type: 'error' })
+    //   return
+    // }
     //4. valid contact - regex check
     else if (!regPhone.test(actualData.contact))
     {
@@ -186,8 +189,8 @@ const Registration = () => {
     //5. valid vaadhar - regex check
     else if (!regVAadhar.test(actualData.vAadhar))
     {
-      setClientError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
-      return
+      // setClientError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
+      // return
     }
     else
     {
@@ -246,7 +249,20 @@ const Registration = () => {
       <div>
         <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='email' name='email' label='Email Address' />
         <Button variant='contained' color='warning' size='large' onClick={handleOTP} sx={{ mt: 8 }}>Verify Email</Button>
-        <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='otp' name='otp' label='otp' />
+        <TextField margin='normal' value={otp} required fullWidth id='otp' name='otp' label='otp' inputProps={
+          { readOnly: true, }
+        } />
+        <Keyboard 
+                layout={{
+                  'default': [
+                    '1 2 3 4 5 6 7 8 9 0 {bksp}',
+                    'Q W E R T Y U I O P',
+                    'A S D F G H J K L',
+                    'Z X C V B N M',
+                  ]
+                  }}
+                  onChange={(input) => setOtp(input)}
+          />
       </div>
       {server_error.email ? <Typography>{server_error.email[0]}</Typography> : ""}
       <select id='role' name='role' onChange={()=>roleDependentForm()}>
@@ -278,3 +294,11 @@ const Registration = () => {
 };
 
 export default Registration;
+
+
+
+
+
+
+
+

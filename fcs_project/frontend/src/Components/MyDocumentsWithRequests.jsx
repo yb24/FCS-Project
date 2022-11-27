@@ -15,8 +15,6 @@ function MyDocumentsWithRequests(){
     const [type, setType] = useState('');
 
     let {access_token, refresh_token} = getToken()
-    let userID = access_token?JSON.parse(window.atob(access_token.split('.')[1])):""
-    userID = userID['user_id'] 
     
     //For document
     const [selectionModel, setSelectionModel] = useState([]);
@@ -55,11 +53,10 @@ function MyDocumentsWithRequests(){
           }
         }).then((response)=>{
           const data = response.data
-          console.log(data)
           setDocumentRequests(data)
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            console.log(error.response.data);
             setResponseMessage(error.response.data)
             }
         })
@@ -276,7 +273,7 @@ function MyDocumentsWithRequests(){
       
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            console.log(error.response.data);
            
           }
         

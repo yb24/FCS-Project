@@ -9,8 +9,6 @@ function AllPayments(){
 
     const [payments, setPayments] = useState([])
     let {access_token, refresh_token} = getToken()
-    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
-    userID = userID['user_id'] 
 
     const FetchPayments  =()=>{
 
@@ -19,15 +17,13 @@ function AllPayments(){
             url:`${process.env.REACT_APP_BACKEND}/display_all_payment_records`,
             data:{
                 token: access_token,
-                userID: userID,
             }
           }).then((response)=>{
             const data = response.data
-            console.log(data)
             setPayments(data)
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response);
+              console.log(error.response.data);
               }
           })
     }

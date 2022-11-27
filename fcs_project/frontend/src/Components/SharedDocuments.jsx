@@ -7,8 +7,6 @@ import { getToken } from '../services/localStorageService';
 function SharedDocuments(){
     const [sharedDocuments, setSharedDocuments] = useState([])
     let {access_token, refresh_token} = getToken()
-    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
-    userID = userID['user_id'] 
 
     const [selectionModel, setSelectionModel] = useState([]);
 
@@ -19,15 +17,13 @@ function SharedDocuments(){
             url:`${process.env.REACT_APP_BACKEND}/display_shared_documents`,
             data:{
                 token: access_token,
-                userID:userID,
             }
           }).then((response)=>{
-            console.log(response)
             setSharedDocuments(response.data)
 
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response);
+              console.log(error.response.data);
               }
           })
         
@@ -88,14 +84,9 @@ function SharedDocuments(){
       
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            console.log(error.response.data);
           }
-        
-  
         })
-        
-
-
       }
 
 

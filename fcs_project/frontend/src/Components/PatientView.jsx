@@ -30,6 +30,10 @@ function PatientView(){
         // navigate to My Documents
         navigate('MyDocuments');
     };
+    const navigateToRequestDocuments = () => {
+        // navigate to My Documents
+        navigate('RequestDocuments');
+    };
     const navigateToSharedDocuments = () => {
         // navigate to Shared Documents
         navigate('SharedDocuments');
@@ -69,6 +73,9 @@ function PatientView(){
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToMyDocuments}>My Documents</Button>
+                </Grid>
+                <Grid item xs={6} md={8}>
+                    <Button variant="contained" onClick={navigateToRequestDocuments}>Request Documents</Button>
                 </Grid>
                 <Grid item xs={6} md={8}>
                     <Button variant="contained" onClick={navigateToSharedDocuments}>Documents Shared With Me</Button>

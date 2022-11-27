@@ -27,12 +27,14 @@ import HealthcareProfessionalView from './Components/HealthcareProfessioanlView'
 import PharmacyView from './Components/PharmacyView';
 import InsuranceFirmView from './Components/InsuranceFirmView';
 import Profile from './Components/Profile';
+import RequestDocuments from "./Components/RequestDocuments";
 import { getToken } from "./services/localStorageService";
+import MyDocumentsWithRequests from "./Components/MyDocumentsWithRequests";
 
 function App() {
   const {access_token} = getToken()
-  const [role, setRole] = useState([]);
-  // const role = "PT"
+  // const [role, setRole] = useState([]);
+  const role = "PT"
 
   useEffect(() => {
     if(!access_token)
@@ -68,6 +70,7 @@ function App() {
           <Route path="Pharmacies" element={<PharmaciesList />} />
           <Route path="InsuranceFirms" element={<InsuranceFirmsList />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="RequestDocuments" element={<RequestDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
           <Route path="PaymentsToBeMade" element={<PaymentsToBeMade />} />
           <Route path="AllPayments" element={<AllPayments />} />
@@ -77,7 +80,7 @@ function App() {
         {access_token != null && role == "HP" && <Route path="HealthcareProfessioanlView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
-          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="MyDocuments" element={<MyDocumentsWithRequests />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
         </Route> } 
 
@@ -85,7 +88,7 @@ function App() {
         {access_token != null && role == "HS" && <Route path="HospitalView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
-          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="MyDocuments" element={<MyDocumentsWithRequests />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
         </Route>  }
 

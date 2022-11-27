@@ -16,6 +16,7 @@ function HealthcareProfessionalView(){
         // navigate to My Documents
         navigate('MyDocuments');
     };
+   
     const navigateToSharedDocuments = () => {
         // navigate to Shared Documents
         navigate('SharedDocuments');

@@ -25,7 +25,7 @@ function HospitalsList(){
             setHospitals(data)
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response);
+              console.log(error.response.data);
               }
           })
        
