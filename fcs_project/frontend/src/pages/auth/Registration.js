@@ -150,11 +150,11 @@ const Registration = () => {
       return
     }
     //5. valid vaadhar - regex check
-    else if (!regVAadhar.test(actualData.vAadhar))
-    {
-      setClientError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
-      return
-    }
+    // else if (!regVAadhar.test(actualData.vAadhar))
+    // {
+    //   setClientError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
+    //   return
+    // }
     else
     {
       setClientError({ status: true, msg: "Filled correctly", type: 'success' })
