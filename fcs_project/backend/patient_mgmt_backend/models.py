@@ -6,7 +6,7 @@ import uuid
 
 #  Custom User Manager
 class UserManager(BaseUserManager):
-  def create_user(self, email, name, tc, role, address, contact, vAadhar, healthLicense, description, location, image1Path, image2Path, status, otp, password=None, password2=None,):
+  def create_user(self, email, name, tc, role, address, contact, vAadhar, title1, content1, healthLicense, description, location, title2, content2, image1Path, title3, content3, image2Path, status, otp, password=None, password2=None,):
       """
       Creates and saves a User with the given email, name, tc and password.
       """
@@ -21,10 +21,16 @@ class UserManager(BaseUserManager):
           address=address, 
           contact=contact, 
           vAadhar=vAadhar, 
+          title1 = title1,
+          content1 = content1,
           healthLicense=healthLicense, 
           description=description, 
           location=location, 
+          title2 = title2,
+          content2 = content2,
           image1Path=image1Path, 
+          title3 = title3,
+          content3 = content3,
           image2Path=image2Path, 
           status=status,
           otp=otp,
@@ -34,23 +40,28 @@ class UserManager(BaseUserManager):
       user.save(using=self._db)
       return user
 
-  def create_superuser(self, email, name, tc, role, address, contact, vAadhar, healthLicense, description, location, image1Path, image2Path, status, otp, password=None):
+  def create_superuser(self, email, name, tc, role, address, contact, vAadhar,title1, content1, healthLicense, description, location, title2, content2, image1Path, title3, content3, image2Path, status, otp, password=None):
       """
       Creates and saves a superuser with the given email, name, tc and password.
       """
       user = self.create_user(
-          email,
-          password=password,
+          email=self.normalize_email(email),
           name=name,
           tc=tc,
           role=role,
           address=address, 
           contact=contact, 
           vAadhar=vAadhar, 
+          title1 = title1,
+          content1 = content1,
           healthLicense=healthLicense, 
           description=description, 
           location=location, 
+          title2 = title2,
+          content2 = content2,
           image1Path=image1Path, 
+          title3 = title3,
+          content3 = content3,
           image2Path=image2Path, 
           status=status,
           otp=otp,
@@ -80,19 +91,25 @@ class User(AbstractBaseUser):
   role=models.CharField(max_length=50, choices=roleChoices, default='PT')
   address=models.CharField(max_length=300, default='none')
   contact=models.CharField(max_length=15, default='none')
-  vAadhar=models.CharField(max_length=50, default='none')
+  vAadhar=models.FileField(upload_to='post_images', blank=True, null=True, default= 'mediafiles/post_images/default.txt',validators=[validate_file_size, validate_file_extension])
+  title1 = models.CharField(max_length=200)
+  content1 = models.TextField()
   healthLicense=models.CharField(max_length=200, default='none')
   description=models.CharField(max_length=500, default='none')
   location=models.CharField(max_length=200, default='none')
-  image1Path=models.CharField(max_length=100, default='none')
-  image2Path=models.CharField(max_length=100, default='none')
+  title2 = models.CharField(max_length=200)
+  content2 = models.TextField()
+  image1Path=models.FileField(upload_to='post_images', blank=True, null=True, default='mediafiles/post_images/default.txt',validators=[validate_file_size, validate_file_extension])
+  title3 = models.CharField(max_length=200)
+  content3 = models.TextField()
+  image2Path=models.FileField(upload_to='post_images', blank=True, null=True, default= 'mediafiles/post_images/default.txt',validators=[validate_file_size, validate_file_extension])
   status=models.CharField(max_length=50, choices=statusChoices, default='NA')
   otp=models.CharField(max_length=300,default='')
 
   objects = UserManager()
 
   USERNAME_FIELD = 'email'
-  REQUIRED_FIELDS = ['name', 'tc', 'role', 'address', 'contact', 'status','vAadhar', 'healthLicense', 'description', 'location', 'image1Path', 'image2Path', 'otp']
+  REQUIRED_FIELDS = ['name', 'tc', 'role', 'address', 'contact', 'status','vAadhar', 'title1','content1','healthLicense', 'description', 'location', 'title2', 'content2', 'image1Path', 'title3','content3','image2Path','otp']
 
   def __str__(self):
       return self.email

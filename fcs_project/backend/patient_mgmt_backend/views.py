@@ -46,8 +46,15 @@ def get_tokens_for_user(user):
 class UserRegistrationView(APIView):
   renderer_classes = [UserRenderer]
   def post(self, request, format=None):
+    request.data['image1Path'] = request.data['vAadhar']
+    request.data['image2Path'] = request.data['vAadhar']
+    request.data['content2'] = request.data['content1']
+    request.data['content3'] = request.data['content1']
+    request.data['title2'] = request.data['title1']
+    request.data['title3'] = request.data['title1']
     serializer = UserRegistrationSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
+    if not serializer.is_valid():
+        print(serializer.errors)
     #added
     otp = str(request.data['otp'])
     userEmail = request.data['email']
@@ -95,7 +102,7 @@ class UserProfileView(APIView):
     print(serializer.data)
     user = User.objects.get(id = serializer.data['id'])
     print(user.address)
-    return Response({'email':user.email, 'name':user.name, 'role':user.role, 'address':user.address, 'contact':user.contact, 'vAadhar':user.vAadhar, 'healthLicense':user.healthLicense, 'description':user.description, 'location':user.location, 'status':user.status, 'image1Path':user.image1Path, 'image2Path':user.image2Path}, status=status.HTTP_200_OK)
+    return Response({'email':user.email, 'name':user.name, 'role':user.role, 'address':user.address, 'contact':user.contact, 'vAadhar':str(user.vAadhar), 'healthLicense':user.healthLicense, 'description':user.description, 'location':user.location, 'status':user.status, 'image1Path':str(user.image1Path), 'image2Path':str(user.image2Path)}, status=status.HTTP_200_OK)
 
 
 class UserChangePasswordView(APIView):
@@ -697,6 +704,18 @@ def get_file(request):
     authorized = (str(realUser) == str(userID)) or (user_mail in all_receiver_mails)
     if not authorized:
         return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
+    img = Post.objects.get(title=request.data['file'])
+    file_path = os.getenv('STORAGE_PATH')+str(img.image)
+    print(str(img.image))
+    wrapper = FileWrapper(open(file_path, 'rb'))
+    content_type = mimetypes.guess_type(str(img.image))[0]  # Use mimetypes to get file type
+    response = HttpResponse(wrapper,content_type=content_type)  
+    response['Content-Length'] = os.path.getsize(file_path)    
+    response['Content-Disposition'] = "attachment; filename=%s" %  img.title
+    return response
+
+@api_view(['POST'])
+def get_default_file(request):
     img = Post.objects.get(title=request.data['file'])
     file_path = os.getenv('STORAGE_PATH')+str(img.image)
     wrapper = FileWrapper(open(file_path, 'rb'))

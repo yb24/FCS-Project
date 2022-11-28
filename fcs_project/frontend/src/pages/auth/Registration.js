@@ -14,12 +14,19 @@ const Registration = () => {
   const navigate = useNavigate();
   const [registerUser, {isLoading}] = useRegisterUserMutation()
   const [OtpGenerator] = useOtpGeneratorMutation()
+
   const [otp, setOtp] = useState('');
+  const [VID, setVID] = useState(null);
+  const [img1, setImg1] = useState(null);
+  const [img2, setImg2] = useState(null);
+
+  var blob = new Blob(["empty file"],{ type: "text/plain;charset=utf-8" });
+  var emptyFile  = new File(['empty', ' ', 'file'], 'emptyFile.txt', {type: 'text/plain'});
 
   var regName = /\d+$/g; 
   var regEmail=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g;
   var regPhone=/^\d{10}$/;
-  var regVAadhar=/^\d{16}$/;
+  var regOtp=/^[A-Z0-9]{8}$/;
 
   const handleOTP = async () => {
     console.log("Clicked generate OTP");
@@ -70,14 +77,21 @@ const Registration = () => {
         role: data.get('role'),
         address: "NA",
         contact: data.get('contact'),
-        vAadhar: data.get('vAadhar'),
+        vAadhar: VID?VID:emptyFile,
         healthLicense: "NA",
         description: "NA",
         location: "NA",
-        image1Path: "NA",
-        image2Path: "NA",
+        image1Path: emptyFile,
+        image2Path: emptyFile,
         status: 'NA',
         otp:otp,
+        title1: VID?VID.name:"empty file",
+        title2: "empty file",
+        title3: "empty file",
+        content1: "File",
+        content2: "File",
+        content3: "File",
+
       }
     }
     else if (data.get('role')=='HS' || data.get('role')=='PH' || data.get('role')=='IF')
@@ -91,14 +105,20 @@ const Registration = () => {
         role: data.get('role'),
         address: data.get('address'),
         contact: data.get('contact'),
-        vAadhar: "0000000000000000",
+        vAadhar: new File([""],"empty file"),
         healthLicense: data.get('healthLicense'),
         description: data.get('description'),
         location: data.get('location'),
-        image1Path: data.get('image1Path'),
-        image2Path: data.get('image2Path'),
+        image1Path: img1?img1:emptyFile,
+        image2Path: img2?img2:emptyFile,
         status: 'NA',
         otp:otp,
+        title1: "empty file",
+        title2: img1?img1.name:"empty file",
+        title3: img2?img2.name:"empty file",
+        content1: "File",
+        content2: "File",
+        content3: "File",
       }
     }
     else if (data.get('role')=='HP')
@@ -112,16 +132,24 @@ const Registration = () => {
         role: data.get('role'),
         address: "NA",
         contact: data.get('contact'),
-        vAadhar: data.get('vAadhar'),
+        vAadhar: VID?VID:new File([""],"empty file"),
         healthLicense: data.get('healthLicense'),
         description: "NA",
         location: "NA",
-        image1Path: "NA",
-        image2Path: "NA",
+        image1Path: emptyFile,
+        image2Path: emptyFile,
         status: 'NA',
         otp:otp,
+        title1: VID?VID.name:"empty file",
+        title2: "empty file",
+        title3: "empty file",
+        content1: "File",
+        content2: "File",
+        content3: "File",
       }
     }
+    console.log(VID)
+    console.log(emptyFile)
     console.log(actualData)
     //client side form validation
     //1. valid name - regex check
@@ -137,7 +165,7 @@ const Registration = () => {
       return
     }
     //3. valid otp - numeric
-    else if (isNaN(actualData.otp))
+    else if (!regOtp.test(actualData.otp))
     {
       setClientError({ status: true, msg: "otp field is incorrectly filled", type: 'error' })
       return
@@ -149,17 +177,43 @@ const Registration = () => {
       return
     }
     //5. valid vaadhar - regex check
-    else if (!regVAadhar.test(actualData.vAadhar))
-    {
-      setClientError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
-      return
-    }
+    // else if (!regVAadhar.test(actualData.vAadhar))
+    // {
+    //   setClientError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
+    //   return
+    // }
     else
     {
       setClientError({ status: true, msg: "Filled correctly", type: 'success' })
     }
     //empty out error after validation done
-    const res = await registerUser(actualData)
+    let formData = new FormData();
+    formData.append('name', actualData['name']);
+      formData.append('email', actualData['email']);
+      formData.append('password', actualData['password']);
+      formData.append('password2', actualData['password2']);
+      formData.append('tc', actualData['tc']);
+      formData.append('role', actualData['role']);
+      formData.append('address', actualData['address']);
+      formData.append('contact', actualData['contact']);
+      formData.append('vAadhar', actualData['vAadhar'], actualData['title1']);
+      formData.append('healthLicense', actualData['healthLicense']);
+      formData.append('description', actualData['description']);
+      formData.append('location', actualData['location']);
+      formData.append('image1Path', actualData['image1Path'], actualData['title2']);
+      formData.append('image2Path', actualData['image2Path'], actualData['title3']);
+      formData.append('status', actualData['status']);
+      formData.append('otp', actualData['otp']);
+      formData.append('title1', actualData['title1']);
+      formData.append('title2', actualData['title2']);
+      formData.append('title3', actualData['title3']);
+      formData.append('content1', actualData['content1']);
+      formData.append('content2', actualData['content2']);
+      formData.append('content3', actualData['content3']);
+
+
+      console.log(formData);
+    const res = await registerUser(formData)
     if (res.error)
     {
       console.log(res.error.data.errors) //from renderers.js file backend
@@ -236,7 +290,7 @@ const Registration = () => {
       {notes=='PT' && 
       <div>
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='contact' name='contact' label='contact' />
-      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='vAadhar' name='vAadhar' label='virtual Aadhar' />
+      <label>Aadhar Card</label><input type="file" onChange={(e)=>setVID(e.target.files[0])} />
       </div>
       }
       {(notes=='HS' || notes=='PH' || notes=='IF') &&
@@ -246,14 +300,17 @@ const Registration = () => {
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='healthLicense' name='healthLicense' label='healthLicense' />
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='description' name='description' label='description'/>
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='location' name='location' label='location' />
-      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='image1Path' name='image1Path' label='image1Path' />
-      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='image2Path' name='image2Path' label='image2Path' />
+      {/* <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='image1Path' name='image1Path' label='image1Path' />
+      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='image2Path' name='image2Path' label='image2Path' /> */}
+      <label>Image 1</label><input type="file" onChange={(e)=> setImg1(e.target.files[0])} />
+      <label>Image 2</label><input type="file" onChange={(e)=> setImg2(e.target.files[0])} />
       </div>
       }
       {notes=='HP' && 
       <div>
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='contact' name='contact' label='contact' />
-      <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='vAadhar' name='vAadhar' label='virtual Aadhar' />
+      {/* <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='vAadhar' name='vAadhar' label='virtual Aadhar' /> */}
+      <label>Aadhar Card</label><input type="file" onChange={(e)=>setVID(e.target.files[0])} />
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='healthLicense' name='healthLicense' label='healthLicense' />
       </div>}
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='password' name='password' label='Password' type='password' />

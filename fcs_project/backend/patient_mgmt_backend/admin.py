@@ -7,11 +7,11 @@ class UserModelAdmin(BaseUserAdmin):
   # The fields to be used in displaying the User model.
   # These override the definitions on the base UserModelAdmin
   # that reference specific fields on auth.User.
-  list_display = ('id', 'email', 'name', 'tc', 'is_admin', 'role', 'address', 'contact', 'vAadhar', 'healthLicense', 'description', 'location', 'image1Path', 'image2Path', 'status', 'otp')
+  list_display = ('id', 'email', 'name', 'tc', 'is_admin', 'role', 'address', 'contact', 'vAadhar', 'title1','content1','healthLicense', 'description', 'location','title2','content2', 'image1Path','title3','content3', 'image2Path', 'status', 'otp')
   list_filter = ('is_admin',)
   fieldsets = (
       ('User Credentials', {'fields': ('email', 'password')}),
-      ('Personal info', {'fields': ('name', 'tc', 'role', 'address', 'contact', 'vAadhar', 'healthLicense', 'description', 'location', 'image1Path', 'image2Path', 'status', 'otp')}),
+      ('Personal info', {'fields': ('name', 'tc', 'role', 'address', 'contact', 'vAadhar', 'title1','content1','healthLicense', 'description', 'location','title2','content2', 'image1Path', 'title3','content3','image2Path', 'status', 'otp')}),
       ('Permissions', {'fields': ('is_admin',)}),
   )
   # add_fieldsets is not a standard ModelAdmin attribute. UserModelAdmin
@@ -19,7 +19,7 @@ class UserModelAdmin(BaseUserAdmin):
   add_fieldsets = (
       (None, {
           'classes': ('wide',),
-          'fields': ('email', 'name', 'tc', 'password1', 'password2', 'role', 'address', 'contact', 'vAadhar', 'healthLicense', 'description', 'location', 'image1Path', 'image2Path', 'status', 'otp'),
+          'fields': ('email', 'name', 'tc', 'password1', 'password2', 'role', 'address', 'contact', 'vAadhar', 'title1','content1','healthLicense', 'description', 'location','title2','content2', 'image1Path', 'title3','content3','image2Path', 'status', 'otp'),
       }),
   )
   search_fields = ('email',)

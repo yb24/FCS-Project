@@ -119,6 +119,7 @@ function MyDocuments(){
 
       if(!selectedFile) return;
 
+     
       let formData = new FormData();
       formData.append('token', access_token);
       formData.append('docType', type);

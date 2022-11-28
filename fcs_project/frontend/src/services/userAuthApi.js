@@ -11,9 +11,6 @@ export const userAuthApi = createApi({
                 url: 'register/',
                 method: 'POST',
                 body: user,
-                headers: {
-                    'Content-type': 'application/json',
-                }
             }
         }
     }),
