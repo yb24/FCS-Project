@@ -37,11 +37,11 @@ function MyDocumentsWithRequests(){
                  navigate("../../")
              }
         
-             else if(window.location.href=='http://localhost:3000/HospitalView/MyDocuments' && role!="HS")
+             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/HospitalView/MyDocuments` && role!="HS")
              {
                navigate("../../")
              }
-             else if(window.location.href=='http://localhost:3000/HealthcareProfessionalView/MyDocuments' && role!="HP")
+             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/HealthcareProfessionalView/MyDocuments` && role!="HP")
              {
                navigate("../../")
              }

@@ -27,19 +27,19 @@ function SharedDocuments(){
           {
               navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/HealthcareProfessioanlView/SharedDocuments' && !(role=="HP" || role=="HS"))
+          else if(window.location.href==`${process.env.REACT_APP_BACKEND}/HealthcareProfessioanlView/SharedDocuments` && !(role=="HP" || role=="HS"))
           {
             navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/PatientView/SharedDocuments' && role!="PT")
+          else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PatientView/SharedDocuments` && role!="PT")
           {
             navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/PharmacyView/SharedDocuments' && role!="PH")
+          else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PharmacyView/SharedDocuments` && role!="PH")
           {
             navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/InsuranceFirmView/SharedDocuments' && role!="IF")
+          else if(window.location.href==`${process.env.REACT_APP_BACKEND}/InsuranceFirmView/SharedDocuments` && role!="IF")
           {
             navigate("../../")
           }

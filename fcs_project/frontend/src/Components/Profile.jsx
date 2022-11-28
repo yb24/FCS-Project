@@ -54,19 +54,19 @@ const Profile = () => {
             {
                 navigate("../../")
             }
-            else if(window.location.href=='http://localhost:3000/HealthcareProfessioanlView/Profile' && !(role=="HP" || role=="HS"))
+            else if(window.location.href==`${process.env.REACT_APP_BACKEND}/HealthcareProfessioanlView/Profile` && !(role=="HP" || role=="HS"))
             {
               navigate("../../")
             }
-            else if(window.location.href=='http://localhost:3000/PatientView/Profile' && role!="PT")
+            else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PatientView/Profile` && role!="PT")
             {
               navigate("../../")
             }
-            else if(window.location.href=='http://localhost:3000/PharmacyView/Profile' && role!="PH")
+            else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PharmacyView/Profile` && role!="PH")
             {
               navigate("../../")
             }
-            else if(window.location.href=='http://localhost:3000/InsuranceFirmView/Profile' && role!="IF")
+            else if(window.location.href==`${process.env.REACT_APP_BACKEND}/InsuranceFirmView/Profile` && role!="IF")
             {
               navigate("../../")
             }

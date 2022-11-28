@@ -34,15 +34,15 @@ function MyDocuments(){
                  navigate("../../")
              }
         
-             else if(window.location.href=='http://localhost:3000/PatientView/MyDocuments' && role!="PT")
+             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PatientView/MyDocuments` && role!="PT")
              {
                navigate("../../")
              }
-             else if(window.location.href=='http://localhost:3000/PharmacyView/MyDocuments' && role!="PH")
+             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PharmacyView/MyDocuments` && role!="PH")
              {
                navigate("../../")
              }
-             else if(window.location.href=='http://localhost:3000/InsuranceFirmView/MyDocuments' && role!="IF")
+             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/InsuranceFirmView/MyDocuments` && role!="IF")
              {
                navigate("../../")
              }
@@ -327,7 +327,7 @@ function MyDocuments(){
             </Select>
         </FormControl>
                 {/* <TextField onChange={handleDocLink} /> */}
-                <p>Allowed file types: .pdf, .txt, .jpeg, .jpg, .png (Size Limit: 2MB))</p>
+                <p>Allowed file types: .pdf, .txt, .jpeg, .jpg, .png (Size Limit: 512KB))</p>
                 <input type="file" onChange={onFileChange} />
                 <Button variant = "contained" onClick={onFileUpload}>
                   Upload!

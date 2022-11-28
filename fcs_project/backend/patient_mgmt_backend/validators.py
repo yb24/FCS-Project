@@ -4,7 +4,7 @@ import os
 def validate_file_size(value):
     filesize= value.size
     
-    if filesize > 2*1024*1024:
+    if filesize > 512*1024:
         raise ValidationError("File Size too Big")
     else:
         return value

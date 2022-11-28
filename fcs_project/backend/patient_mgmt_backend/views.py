@@ -33,6 +33,12 @@ import mimetypes
 from django.core.files.storage import FileSystemStorage
 import datetime
 from django.utils import timezone
+import logging
+
+logging_file = os.getenv('STORAGE_PATH')+'post_images/logfile.log'
+logging.basicConfig(filename=logging_file, format='%(asctime)s %(message)s')
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 load_dotenv()
 
@@ -48,6 +54,7 @@ class UserRegistrationView(APIView):
   renderer_classes = [UserRenderer]
   def post(self, request, format=None):
     try:
+        # logger.info("UserRegistrationView called: "+str(request.data['email']))
         serializer = UserRegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         #added
@@ -56,9 +63,11 @@ class UserRegistrationView(APIView):
         otp_record = OtpTableRegistration.objects.get(userEmail=userEmail)
         if not otp_record:
             return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
+        curr_time = timezone.now()
+        generated_recently = (otp_record.timeStamp > curr_time - timezone.timedelta(minutes=2))
+        if otp_record.otp != otp or generated_recently == False:
+            return Response("OTP invalid", status=status.HTTP_400_BAD_REQUEST)
         OtpTableRegistration.objects.filter(userEmail=userEmail).delete()
-        if otp_record.otp != otp or float(otp_record.timeStamp) < time.time() - 120:
-            return Response(data = "OTP invalid", status=status.HTTP_400_BAD_REQUEST)
         user = serializer.save()
         token = get_tokens_for_user(user)
         userID = User.objects.filter(email=request.data['email']).values_list('id', flat=True)[0]
@@ -68,13 +77,15 @@ class UserRegistrationView(APIView):
             return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
         walletserializer.save()
         return Response({'token':token, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED) #also returned user
-    except:
+    except Exception as e:
+        print(e)
         return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 class UserLoginView(APIView):
   renderer_classes = [UserRenderer]
   def post(self, request, format=None):
     try:
+        # logger.info("UserLoginView called")
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.data.get('email')
@@ -92,6 +103,7 @@ class UserProfileView(APIView):
   #permission_classes = [IsAuthenticated]
   def post(self, request, format=None):
     try:
+        # logger.info("UserProfileView called")
         serializer = UserProfileSerializer(request.data)
         user = User.objects.get(id = serializer.data['id'])
         return Response({'email':user.email, 'name':user.name, 'role':user.role, 'address':user.address, 'contact':user.contact, 'vAadhar':user.vAadhar, 'healthLicense':user.healthLicense, 'description':user.description, 'location':user.location, 'status':user.status, 'image1Path':user.image1Path, 'image2Path':user.image2Path}, status=status.HTTP_200_OK)
@@ -101,6 +113,7 @@ class UserProfileView(APIView):
 class UserChangePasswordView(APIView):
     def post(self, request, format=None):
         try:
+            # logger.info("UserChangePasswordView called")
             # print(request.data['actualData'])
             # print(request.data['actualData']['email'])
             existing_user_record = User.objects.get(email=request.data['actualData']['email'])
@@ -130,9 +143,11 @@ class UserChangePasswordView(APIView):
 @api_view(['DELETE'])
 def delete_upload_records(request):
     try:
+        # logger.info("delete upload records api called")
         if "token" not in request.data or "reportID" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
         authenticated, userId = verify_user(request.data["token"])
+        # logger.info("by token: " + str(request.data["token"]))
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
     
@@ -145,8 +160,10 @@ def delete_upload_records(request):
 @api_view(['POST'])
 def display_upload_records(request):
     try:
+        # logger.info("display uploaded records api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userId = verify_user(request.data["token"])
         if not authenticated:
             return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -159,8 +176,10 @@ def display_upload_records(request):
 @api_view(['POST'])
 def insert_upload_records(request):
     try:
+        # logger.info("insert uploaded records api called")
         if "token" not in request.data or "docType" not in request.data or "title" not in request.data or "content" not in request.data or "image" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -193,6 +212,7 @@ def insert_upload_records(request):
 @api_view(['POST'])
 def insert_user_table(request):
     try:
+        # logger.info("insert user table api called")
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -205,8 +225,10 @@ def insert_user_table(request):
 @api_view(['POST'])
 def get_all_healthcare_professionals(request):
     try:
+        # logger.info("get_all_healthcare_professionals api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -223,8 +245,10 @@ def get_all_healthcare_professionals(request):
 @api_view(['POST'])
 def get_all_pharmacy(request):
     try:
+        # logger.info("get_all_pharmacy api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -240,8 +264,10 @@ def get_all_pharmacy(request):
 @api_view(['POST'])
 def get_all_insurance_firm(request):
     try:
+        # logger.info("get_all_insurance_firm api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -260,8 +286,10 @@ def get_all_insurance_firm(request):
 @api_view(['POST'])
 def get_all_hospital(request):
     try:
+        # logger.info("get_all_hospital api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -279,8 +307,10 @@ def get_all_hospital(request):
 @api_view(['POST'])
 def get_curr_balance(request):
     try:
+        # logger.info("get_curr_balance api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -297,8 +327,10 @@ def get_curr_balance(request):
 @api_view(['POST'])
 def add_money(request):
     try:
+        logger.info("add_money api called")
         if "token" not in request.data or "amount" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -325,8 +357,10 @@ def add_money(request):
 @api_view(['POST'])
 def share_document(request):
     try:
+        # logger.info("share_document api called")
         if "token" not in request.data or "emailID" not in request.data or "reportID" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -371,8 +405,10 @@ def share_document(request):
 @api_view(['POST'])
 def request_documents(request):
     try:
+        # logger.info("request_documents api called")
         if "token" not in request.data or "docType" not in request.data or "receiverEmail" not in request.data or "date" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -406,9 +442,10 @@ def request_documents(request):
 @api_view(['POST'])
 def display_pending_document_requests(request):
     try:
+        # logger.info("display_pending_document_requests api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -437,9 +474,11 @@ def display_pending_document_requests(request):
 @api_view(['POST'])
 def display_shared_documents(request):
     try:
+        # logger.info("display_shared_documents api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        # logger.info("by token: " + str(request.data["token"]))
+
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -464,9 +503,10 @@ def display_shared_documents(request):
 @api_view(['POST'])
 def display_unmade_bills(request):
     try:
+        # logger.info("display_unmade_bills api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -505,9 +545,10 @@ def display_unmade_bills(request):
 @api_view(['POST'])
 def make_bill(request):
     try:
+        # logger.info("make_bill api called")
         if "token" not in request.data or "amount" not in request.data or "sharedByEmail" not in request.data or "sharedRecordID" not in request.data:
             return Response("Incorrect Role", status=status.HTTP_400_BAD_REQUEST)
-        
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -542,9 +583,10 @@ def make_bill(request):
 @api_view(['POST'])
 def display_payments_to_be_made(request):
     try:
+        # logger.info("display_payments_to_be_made api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response(data = "Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -564,9 +606,10 @@ def make_payment(request):
     #                       If No return fail.
     #   Else delete the otp entry from OtpTable. 
     try:
+        logger.info("make_payment api called")
         if "token" not in request.data or "otp" not in request.data or "paymentID" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -575,9 +618,11 @@ def make_payment(request):
         otp_record = OtpTable.objects.get(userID=userID)
         if not otp_record:
             return Response("OTP invalid", status=status.HTTP_400_BAD_REQUEST)
-        OtpTable.objects.filter(userID=userID).delete()
-        if otp_record.otp != otp or float(otp_record.timeStamp) < time.time() - 120:
+        curr_time = timezone.now()
+        generated_recently = (otp_record.timeStamp > curr_time - timezone.timedelta(minutes=2))
+        if otp_record.otp != otp or generated_recently == False:
             return Response("OTP invalid", status=status.HTTP_400_BAD_REQUEST)
+        OtpTable.objects.filter(userID=userID).delete()
         userwallet = UserWallet.objects.get(userID=userID)
         payment = PaymentRecords.objects.get(id = request.data['paymentID'])
         if payment.amount > userwallet.amount:
@@ -597,9 +642,10 @@ def make_payment(request):
 @api_view(['POST'])
 def display_all_payment_records(request):
     try:
+        # logger.info("display_all_payment_records api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -626,9 +672,10 @@ def display_all_payment_records(request):
 @api_view(['POST'])
 def generate_otp(request):
     try:
+        # logger.info("generate_otp api called")
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -643,32 +690,39 @@ def generate_otp(request):
         for i in range(8):
             OTP += digits[secrets.randbelow(36)]
         otp = OTP + " is your OTP"
-        msg = 'Subject: {}\n\n{}'.format("Generated OTP for payment", otp)
+        msg = 'Subject: {}\n\n{}'.format("Generated OTP for payment: ", otp)
 
         s = smtplib.SMTP("smtp.gmail.com", 587)
         s.starttls()
         
         s.login("otp123authenticator@gmail.com", os.getenv('EMAIL_PWD'))
-        s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
-        record = {'userID': userID, 'otp': OTP, 'timeStamp': str(time.time())}
+        record = {'userID': userID, 'otp': OTP, 'timeStamp': timezone.now()}
         try:
             existing_otp_record = OtpTable.objects.get(userID=userID)
+            print("current timeStamp: ", existing_otp_record.timeStamp, type(existing_otp_record.timeStamp))
+            curr_time = timezone.now()
+            generated_recently = (existing_otp_record.timeStamp > curr_time - timezone.timedelta(minutes=2))
+            if generated_recently:
+                return Response("Otp generated recently", status=status.HTTP_400_BAD_REQUEST)
             existing_otp_record.otp = OTP
-            existing_otp_record.timeStamp = str(time.time())
+            existing_otp_record.timeStamp = curr_time
             existing_otp_record.save(update_fields=['otp', 'timeStamp'])
+            s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
             return Response(data = "Success", status=status.HTTP_201_CREATED)
         except:
             serializer = OtpTableSerializer(data=record)
             if serializer.is_valid():
                 serializer.save()
+                s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
                 return Response(data = "Success", status=status.HTTP_201_CREATED)
-        return Response(data = "Success")
+        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
     except:
         return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def generate_otp_registration(request):
     try:
+        # logger.info("generate_otp_registration api called")
         if "userEmail" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
         
@@ -678,25 +732,31 @@ def generate_otp_registration(request):
         for i in range(8):
             OTP += digits[secrets.randbelow(36)]
         otp = OTP + " is your OTP"
-        msg = 'Subject: {}\n\n{}'.format("Generated OTP for payment", otp)
+        msg = 'Subject: {}\n\n{}'.format("Generated OTP for registration:", otp)
 
         s = smtplib.SMTP("smtp.gmail.com", 587)
         s.starttls()
         s.login("otp123authenticator@gmail.com", os.getenv('EMAIL_PWD'))
-        s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
-        record = {'userEmail': request.data['userEmail'], 'otp': OTP, 'timeStamp': str(time.time())}
+        record = {'userEmail': request.data['userEmail'], 'otp': OTP, 'timeStamp': timezone.now()}
         try:
             existing_otp_record = OtpTableRegistration.objects.get(userEmail=request.data['userEmail'])
+            curr_time = timezone.now()
+            generated_recently = (existing_otp_record.timeStamp > curr_time - timezone.timedelta(minutes=2))
+            if generated_recently:
+                return Response("Otp generated recently", status=status.HTTP_400_BAD_REQUEST)
+            
             existing_otp_record.otp = OTP
-            existing_otp_record.timeStamp = str(time.time())
+            existing_otp_record.timeStamp = curr_time
             existing_otp_record.save(update_fields=['otp', 'timeStamp'])
+            s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
             return Response(data = "Success", status=status.HTTP_201_CREATED)
         except:
             serializer = OtpTableRegistrationSerializer(data=record)
             if serializer.is_valid():
                 serializer.save()
+                s.sendmail("otp123authenticator@gmail.com", receiverEmail, msg)
                 return Response(data = "Success", status=status.HTTP_201_CREATED)
-        return Response(data = "Success")
+        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
     except:
         return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
@@ -725,7 +785,6 @@ def get_role(request):
     try:
         if "token" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -739,9 +798,10 @@ def get_role(request):
 @api_view(['POST'])
 def get_file(request):
     try:
+        # logger.info("get_file api called")
         if "token" not in request.data or "file" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        
+        # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -765,3 +825,5 @@ def get_file(request):
 def getUserRole(userID):
     userRole = User.objects.filter(id=userID).values_list('role', flat=True)[0]
     return userRole
+
+    

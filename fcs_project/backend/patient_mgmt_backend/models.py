@@ -148,13 +148,13 @@ class OtpTable(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     userID = models.CharField(max_length=100)
     otp = models.CharField(max_length=30)
-    timeStamp = models.CharField(max_length=100)
+    timeStamp = models.DateTimeField(auto_now_add=True)
 
 class OtpTableRegistration(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     userEmail = models.CharField(max_length=255)
     otp = models.CharField(max_length=30)
-    timeStamp = models.CharField(max_length=100)
+    timeStamp = models.DateTimeField(auto_now_add=True)
 
 class PendingDocumentRequests(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
