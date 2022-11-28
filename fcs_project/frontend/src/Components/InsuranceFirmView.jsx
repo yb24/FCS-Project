@@ -13,7 +13,10 @@ function InsuranceFirmView(){
     var role = ''
     useEffect(() => {
       if(!access_token)
+      {
+        navigate("../")
         return;
+      }
         axios({
           method: "POST",
           url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -21,9 +24,9 @@ function InsuranceFirmView(){
               token: access_token,
           }
         }).then((response)=>{
-            console.log("role is",response.data.role)
+            ////console.log("role is",response.data.role)
             role = response.data.role
-            if (role!="IF" || response.data.userStatus!="AU")
+            if (!(role=="IF" || role=="AD") || response.data.userStatus!="AU")
             {
                 navigate("../")
             }

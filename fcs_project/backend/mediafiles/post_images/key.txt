@@ -1,0 +1,76 @@
+GOOGLE_MAPS_API_KEY=AIzaSyDGn4XGvSvCRdmBL5_NQPdN_tJlxohaJoU
+BACKEND=http://localhost:8000
+
+
+
+request_args = dict(req.query_params)
+    # request_args = await req.json()
+    # print(request_args)
+    # lat = float(request_args['lat'])
+    # lng = float(request_args['lng'])
+    # CCMS_no = request_args['CCMS_no']
+    # Zone = request_args['zone']
+    # Type_of_Light = request_args['Type_of_Light']
+    # No_Of_Lights = request_args['No_Of_Lights']
+    # Ward_No = request_args['Ward_No']
+    # Wattage= request_args['Wattage']
+    # Connected_Load= request_args['Connected_Load']
+    # Actual_load=request_args['Actual_load']
+    phone_no = request_args['phone_no']
+    report_type = request_args['report_type']
+    unique_pole_no = request_args['unique_pole_no']
+    # agency = request_args['agency']
+    # unique_no = request_args['unique_no']
+
+    try:
+        rows = [{'lng': streetlight['lng'], 'lat': streetlight['lat'], 'CCMS_no':streetlight['CCMS_no'], 'zone':streetlight['zone'], 'Type of Light':streetlight['Type of Light'], 'No. Of Lights':streetlight['No. Of Lights'], 'Ward No.':streetlight['Ward No.'] , 'Wattage':streetlight['Wattage'], 'Connected Load':streetlight['Connected Load'], 'Actual Load':streetlight['Actual Load'], 'Unique Pole No.':streetlight['Unique Pole No.']} for streetlight in all_lights if streetlight['Unique Pole No.']==unique_pole_no][0]
+        db['reports'].insert_one({'lat': rows['lat'], 'lng': rows['lng'], 'timestamp': str(datetime.now(IST)),'id':unique_pole_no, 'CCMS_no': rows['CCMS_no'], 'zone': unique_pole_no[2:4], 'Type_of_Light': rows['Type of Light'], 'No_Of_Lights': rows['No. Of Lights'], 'Wattage': rows['Wattage'], 'Ward_No': unique_pole_no[4:7], 'Connected_Load': rows['Connected Load'], 'Actual_load': rows['Actual Load'], 'phone_no': phone_no, 'report_type': report_type, 'unique_pole_no' : unique_pole_no, 'agency':unique_pole_no[0:2], 'unique_no': unique_pole_no[7:] })
+
+        sender_mail_id = "superuser.roshni.0.0.0@gmail.com"
+        password = "superuser123"
+
+        # get the user email and password from db
+
+        # initialised to universal mail id
+        concerned_authority_mail = "aryan10behal@gmail.com"
+
+        agency = unique_pole_no[0:2]
+
+        # # currently assuming, an admin in a agency lvl...
+        if agency in admin_credentials.keys():
+            concerned_authority_mail = admin_credentials[agency]['Email']
+        
+        lat = rows['lat']
+        lng = rows['lng']
+        CCMS_no = rows['CCMS_no']
+        Zone = rows['zone']
+        Type_of_Light = rows['Type of Light']
+        No_Of_Lights = rows['No. Of Lights']
+        Wattage = rows['Wattage']
+        Ward_No =  rows['Ward No.'] 
+        agency = rows['agency'] 
+        Connected_Load = rows['Connected Load']
+        Actual_Load = rows['Actual Load']
+
+        # # Report Message here..
+        report_message = "\n A light pole has been reported with following details: [Lat, Lng]: " + str(lat) +", "+ str(lng) + ', timestamp: '+ str(datetime.now(IST)) + ', CCMS_no: '+  str(CCMS_no) + ', Zone: '+ Zone+ ', Type_of_Light: '+  Type_of_Light + ', No_Of_Lights: ' + No_Of_Lights+ ', Wattage: ' + Wattage + ', Ward_No: ' + Ward_No + ', agency: ' + agency + ', unique_no: ' + unique_pole_no  + ', Connected Load: ' + Connected_Load + ', Actual Load: '+ Actual_Load + '|| Reported by: Phone No: ' + phone_no + 'Report Type: ' + report_type
+        subject = "Light Reported"
+        message = 'Subject: {}\n\n{}'.format(subject, report_message)
+        port = 587 # For starttls
+        smtp_server = "smtp.gmail.com"
+
+        context = ssl.create_default_context()
+        with smtplib.SMTP(smtp_server, port) as server:
+            server.ehlo()
+            server.starttls(context = context)
+            server.ehlo()
+            server.login(sender_mail_id, password)
+            server.sendmail(sender_mail_id, concerned_authority_mail, message)
+            print("Admin notified by mail!")
+    except Exception as e:
+        print(e)
+
+    
+   # print(list(map(lambda report: {'lat': report['lat'], 'lng': report['lng'], 'timestamp': report['timestamp'], 'id':report['id'], 'CCMS_no': report['CCMS_no'], 'zone': report['zone'], 'Type_of_Light': report['Type_of_Light'], 'No_Of_Lights': report['No_Of_Lights'], 'Wattage': report['Wattage'], 'Ward_No': report['Ward_No'], 'Connected Load': ['Connected_Load'], 'Actual Load': report['Actual_load'], 'Phone No': report['phone_no'], 'Report Type': report['report_type'], 'unique_pole_no' : report['unique_pole_no'], 'agency':report['agency'], 'unique_no': report['unique_no']}, db['reports'].find())))
+    return list(map(lambda report: {'lat': report['lat'], 'lng': report['lng'], 'timestamp': report['timestamp'], 'id':report['id'], 'CCMS_no': report['CCMS_no'], 'zone': report['zone'], 'Type_of_Light': report['Type_of_Light'], 'No_Of_Lights': report['No_Of_Lights'], 'Wattage': report['Wattage'], 'Ward_No': report['Ward_No'], 'Connected Load': report['Connected_Load'], 'Actual Load': report['Actual_load'], 'Phone No': report['phone_no'], 'Report Type': report['report_type'], 'unique_pole_no' : report['unique_pole_no'], 'agency':report['agency'], 'unique_no': report['unique_no']}, db['reports'].find()))
+ 

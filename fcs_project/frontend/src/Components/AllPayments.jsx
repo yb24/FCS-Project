@@ -6,29 +6,43 @@ import {useNavigate} from 'react-router-dom';
 
 function AllPayments(){
   //role based access control
-    const navigate = useNavigate();
-    var role = ''
-    useEffect(() => {
-      if(!access_token)
-        return;
-        axios({
-          method: "POST",
-          url:`${process.env.REACT_APP_BACKEND}/get_role`,
-          data:{
-              token: access_token,
+  const navigate = useNavigate();
+  var role = ''
+  useEffect(() => {
+    if(!access_token)
+    {
+      navigate("../../")
+      return;
+    }
+      axios({
+        method: "POST",
+        url:`${process.env.REACT_APP_BACKEND}/get_role`,
+        data:{
+            token: access_token,
+        }
+      }).then((response)=>{
+          ////console.log("role is",response.data.role)
+          role = response.data.role
+          if (!(role=="PH" || role=="IF" || role=="PT" || role=="AD") || response.data.userStatus!="AU")
+          {
+              navigate("../../")
           }
-        }).then((response)=>{
-            console.log("role is",response.data.role)
-            role = response.data.role
-            if (!(role=="PH" || role=="IF" || role=="PT") || response.data.userStatus!="AU")
-            {
-                navigate("../../")
-            }
-        }).catch((error) => {
-          navigate("../../")
-        })
-    }, []); 
-
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PatientView/AllPayments'.toLowerCase() && !(role=="PT" || role=="AD"))
+          {
+            navigate("../../")
+          }
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PharmacyView/AllPayments'.toLowerCase() && !(role=="PH" || role=="AD"))
+          {
+            navigate("../../")
+          }
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/InsuranceFirmView/AllPayments'.toLowerCase() && !(role=="IF" || role=="AD"))
+          {
+            navigate("../../")
+          }
+      }).catch((error) => {
+        navigate("../../")
+      })
+  }, []); 
     const [payments, setPayments] = useState([])
     let {access_token} = getToken()
 
@@ -45,7 +59,7 @@ function AllPayments(){
             setPayments(data)
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response.data);
+              //console.log(error.response.data);
               }
           })
     }

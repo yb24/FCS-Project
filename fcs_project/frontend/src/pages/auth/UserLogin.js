@@ -17,31 +17,31 @@ const UserLogin = () => {
       email: data.get('email'),
       password: data.get('password'),
     }
-    console.log("heyo")
-    console.log(`${process.env.REACT_APP_BACKEND}`)
+    ////console.log("heyo")
+    ////console.log(`${process.env.REACT_APP_BACKEND}`)
     const res = await loginUser(actualData)
     if (res.error)
     {
-      console.log(res.error.data.errors) //from renderers.js file backend
+      ////console.log(res.error.data.errors) //from renderers.js file backend
       setServerError(res.error.data.errors)
     }
     if (res.data)
     {
-      console.log(res.data)
+      ////console.log(res.data)
       //save token
       storeToken(res.data.token)
       //storeUser(actualData)
       //get role from token
       //1. get userid from access_token
       let {access_token} = getToken()
-      console.log("access token is :: ",access_token)
+      ////console.log("access token is :: ",access_token)
       let userID = ""
       if (access_token != null) {
         userID = JSON.parse(window.atob(access_token.split('.')[1]))
         userID = userID['user_id'] 
-        console.log("userid is : ", userID)
+        ////console.log("userid is : ", userID)
       }
-      console.log("Got userid : ", userID)
+      ////console.log("Got userid : ", userID)
       //2. get user role from id
       const actualData_temp = {
         id: userID,
@@ -49,13 +49,13 @@ const UserLogin = () => {
       const res_temp = await profileUser(actualData_temp)
       if (res_temp.error)
       {
-        console.log(res_temp.error.data.errors) //from renderers.js file backend
+        ////console.log(res_temp.error.data.errors) //from renderers.js file backend
       }
       if (res_temp.data)
       {
-        console.log(res_temp.data)
+        ////console.log(res_temp.data)
       }
-      console.log("Got userrole : ", res_temp.data)
+      ////console.log("Got userrole : ", res_temp.data)
       //3. redirect based on user role and status
       navigate('../')
       /*if (res_temp.data['status']=='NA' || res_temp.data['status']=='RM')

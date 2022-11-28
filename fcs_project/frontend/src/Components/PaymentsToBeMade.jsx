@@ -25,7 +25,10 @@ function PaymentsToBeMade(){
     var role = ''
     useEffect(() => {
       if(!access_token)
+      {
+        navigate("../../")
         return;
+      }
         axios({
           method: "POST",
           url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -33,17 +36,25 @@ function PaymentsToBeMade(){
               token: access_token,
           }
         }).then((response)=>{
-            console.log("role is",response.data.role)
+            ////console.log("role is",response.data.role)
             role = response.data.role
-            if (!(role=="PT" || role=="IF") || response.data.userStatus!="AU")
+            if (!(role=="PT" || role=="IF" || role=="AD") || response.data.userStatus!="AU")
             {
                 navigate("../../")
             }
+            else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PatientView/PaymentsToBeMade'.toLowerCase() && !(role=="PT" || role=="AD"))
+            {
+              navigate("../../")
+            }
+            else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/InsuranceFirmView/PaymentsToBeMade'.toLowerCase() && !(role=="IF" || role=="AD"))
+            {
+              navigate("../../")
+            }
+
         }).catch((error) => {
           navigate("../../")
         })
     }, []); 
-
 
     const FetchPayments  =()=>{
 
@@ -58,7 +69,7 @@ function PaymentsToBeMade(){
         setPayments(data)
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response.data);
+          //console.log(error.response.data);
           }
       })
     }
@@ -79,7 +90,7 @@ function PaymentsToBeMade(){
         setOpen(false);
       };
       const handleDialog=(report)=>{
-        console.log(report)
+        //console.log(report)
         if(report.length==0) return;
         setShowDialog(true);
         handleClickOpen();
@@ -89,7 +100,7 @@ function PaymentsToBeMade(){
     
      const getEmailIDandAmount=(id)=>{
         if(!id)return [0,0];
-        console.log("ho raha hai")
+        //console.log("ho raha hai")
         for(var i=0; i<payments.length; i++){
 
             if(payments[i]['id']===id){
@@ -126,7 +137,7 @@ function PaymentsToBeMade(){
         const data = response.data
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response.data);
+          //console.log(error.response.data);
           }
       })
       return true;
@@ -148,7 +159,7 @@ function PaymentsToBeMade(){
           FetchPayments()
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response.data);
+            //console.log(error.response.data);
             }
         })
         return

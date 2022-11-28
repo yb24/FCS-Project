@@ -10,7 +10,10 @@ function MakeBill(){
   var role = ''
   useEffect(() => {
     if(!access_token)
+    {
+      navigate("../../")
       return;
+    }
       axios({
         method: "POST",
         url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -18,11 +21,19 @@ function MakeBill(){
             token: access_token,
         }
       }).then((response)=>{
-          console.log("role is",response.data.role)
+          ////console.log("role is",response.data.role)
           role = response.data.role
-          if (!(role=="PH" || role=="IF") || response.data.userStatus!="AU")
+          if (!(role=="PH" || role=="IF" || role=="AD") || response.data.userStatus!="AU")
           {
               navigate("../../")
+          }
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PharmacyView/MakeBill'.toLowerCase() && !(role=="PH" || role=="AD"))
+          {
+            navigate("../../")
+          }
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/InsuranceFirmView/MakeBill'.toLowerCase() && !(role=="IF" || role=="AD"))
+          {
+            navigate("../../")
           }
       }).catch((error) => {
         navigate("../../")
@@ -48,11 +59,11 @@ function MakeBill(){
         }
       }).then((response)=>{
         const data = response.data
-        console.log(data)
+        //console.log(data)
         setSharedDocuments(data)
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
+          //console.log(error.response);
           }
       })
     }
@@ -74,7 +85,7 @@ function MakeBill(){
         setOpen(false);
       };
       const handleDialog=(report)=>{
-        console.log(report)
+        //console.log(report)
         if(report.length==0) return;
         setShowDialog(true);
         handleClickOpen();
@@ -97,11 +108,11 @@ function MakeBill(){
 
 
      const MakeBill=(id, sharedByEmail, billAmount)=>{
-        console.log(id, sharedByEmail, billAmount)
+        //console.log(id, sharedByEmail, billAmount)
         if(!id || !sharedByEmail || !billAmount) return;
 
         // id is shareID
-        console.log("harman ludo")
+        //console.log("harman ludo")
         //API call to make 'Bill Made' in payment table 'Yes'
         
 
@@ -118,11 +129,11 @@ function MakeBill(){
           }
         }).then((response)=>{
           const data = response.data
-          console.log(data)
+          //console.log(data)
           FetchSharedDocuments();
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            //console.log(error.response);
             }
         })
 
@@ -178,7 +189,7 @@ function MakeBill(){
       
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response.data);
+            //console.log(error.response.data);
           }
         
   

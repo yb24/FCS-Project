@@ -19,7 +19,10 @@ function MyDocuments(){
      var role = ''
      useEffect(() => {
        if(!access_token)
+       {
+          navigate("../../")
          return;
+       }
          axios({
            method: "POST",
            url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -27,22 +30,22 @@ function MyDocuments(){
                token: access_token,
            }
          }).then((response)=>{
-             console.log("role is",response.data.role)
+             ////console.log("role is",response.data.role)
              role = response.data.role
              if (response.data.userStatus!="AU")
              {
                  navigate("../../")
              }
         
-             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PatientView/MyDocuments` && role!="PT")
+             else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PatientView/MyDocuments'.toLowerCase() && !(role=="PT" || role=="AD"))
              {
                navigate("../../")
              }
-             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/PharmacyView/MyDocuments` && role!="PH")
+             else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PharmacyView/MyDocuments'.toLowerCase() && !(role=="PH" || role=="AD"))
              {
                navigate("../../")
              }
-             else if(window.location.href==`${process.env.REACT_APP_BACKEND}/InsuranceFirmView/MyDocuments` && role!="IF")
+             else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/InsuranceFirmView/MyDocuments'.toLowerCase() && !(role=="IF" || role=="AD"))
              {
                navigate("../../")
              }
@@ -72,7 +75,7 @@ function MyDocuments(){
         setMyDocuments(data)
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response.data);
+          //console.log(error.response.data);
           }
       })
     }
@@ -92,12 +95,12 @@ function MyDocuments(){
             reportID: report_id,
         }
       }).then((response)=>{
-        console.log(response)
+        //console.log(response)
         setResponseMessage("File deleted successfully!")
         FetchMyDocuments()
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
+          //console.log(error.response);
           setResponseMessage("File could not be deleted due to some error.")
           }
       })
@@ -132,12 +135,12 @@ function MyDocuments(){
         }
       }).then((response)=>{
         const data = response.data
-        console.log(data)
+        //console.log(data)
         setResponseMessage("File uploaded successfully!")
         FetchMyDocuments()
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response.data);
+          //console.log(error.response.data);
           setResponseMessage("Error occurred due to unsupported file type, size limit, or unauthorized access.")
           }
       })
@@ -155,11 +158,11 @@ function MyDocuments(){
         // formData.append("docType", "Prescription");
         
         // for (var [key, value] of formData.entries()) { 
-        //     console.log(key, value);
+        //     //console.log(key, value);
         //   }
-        // console.log(selectedFile);
-        // console.log(...formData);
-        // console.log(formData==null)
+        // //console.log(selectedFile);
+        // //console.log(...formData);
+        // //console.log(formData==null)
 
         // axios({
         //     method: "POST",
@@ -170,10 +173,10 @@ function MyDocuments(){
         //     data:formData
         //   }).then((response)=>{
         //     const data = response.data
-        //     console.log(data)
+        //     //console.log(data)
         //   }).catch((error) => {
         //     if (error.response) {
-        //       console.log(error.response);
+        //       //console.log(error.response);
         //       }
         //   })
 
@@ -193,7 +196,7 @@ function MyDocuments(){
         setOpen(false);
       };
       const handleDialog=(report)=>{
-        console.log(report)
+        //console.log(report)
         if(report.length==0) return;
         setShowDialog(true);
         handleClickOpen();
@@ -216,7 +219,7 @@ function MyDocuments(){
           setResponseMessage("File shared successfully!")
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response.data);
+            //console.log(error.response.data);
             setResponseMessage("File could not be shared.")
             }
         })
@@ -272,7 +275,7 @@ function MyDocuments(){
           window.open((URL.createObjectURL(response.data)), '_blank')
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response.data);
+            //console.log(error.response.data);
             }
             
         })

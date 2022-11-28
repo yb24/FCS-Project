@@ -10,21 +10,21 @@ const Home = () => {
   const [profileUser, {isLoading}] = useProfileUserMutation()
   //1. get decoded userid
   let {access_token} = getToken()
-  console.log(access_token)
+  ////console.log(access_token)
   let userID = ""
 
   let status1 = "AU"
-  console.log("status : ", status1)
+  ////console.log("status : ", status1)
   if (access_token != null) {
     try 
     {
       userID = JSON.parse(window.atob(access_token.split('.')[1]))
       userID = userID['user_id'] 
-      console.log("userid", userID)
+      ////console.log("userid", userID)
     }
     catch (err)
     {
-      console.log("GOT ERROR")
+      ////console.log("GOT ERROR")
     }
     //also get the status
 
@@ -43,7 +43,7 @@ const Home = () => {
             token: access_token,
         }
       }).then((response)=>{
-          console.log("homejs",response.data)
+          ////console.log("homejs",response.data)
           setUserEmail(response.data.email)
       }).catch((error) => {
       })
@@ -51,7 +51,7 @@ const Home = () => {
 
 
   const handleLogout = () => {
-    console.log("Logout Clicked");
+    ////console.log("Logout Clicked");
     //remove tokens
     removeToken()
     //removeUser()
@@ -59,7 +59,7 @@ const Home = () => {
   }
 
   const handleProfile = async () => {
-    console.log("Profile Clicked");
+    ////console.log("Profile Clicked");
     //2. use decoded userid
     const actualData = {
       id: userID,
@@ -67,18 +67,18 @@ const Home = () => {
     const res = await profileUser(actualData)
     if (res.error)
     {
-      console.log(res.error.data.errors) //from renderers.js file backend
+      ////console.log(res.error.data.errors) //from renderers.js file backend
     }
     if (res.data)
     {
-      console.log(res.data)
+      ////console.log(res.data)
       //3. show json on page
       document.getElementById("add_profile").innerHTML = "<p>"+" Email:"+res.data['email']+"<br> Name:"+res.data['name']+"<br> Role:"+res.data['role']+"<br> Address:"+res.data['address']+"<br> contact:"+res.data['contact']+"<br> description:"+res.data['description']+"<br> healthLicense:"+res.data['healthLicense']+"<br> location:"+res.data['location']+"<br> vAadhar:"+res.data['vAadhar']+"<br> Image1Path:"+res.data['image1Path']+"<br> Image2Path:"+res.data['image2Path']+"</p>"
     }
   }
 
   const handleExplore = async () => {
-    console.log("Explore Clicked");
+    ////console.log("Explore Clicked");
     //navigate based on role?
     const actualData = {
       id: userID,
@@ -86,11 +86,11 @@ const Home = () => {
     const res = await profileUser(actualData)
     if (res.error)
     {
-      console.log(res.error.data.errors) //from renderers.js file backend
+      ////console.log(res.error.data.errors) //from renderers.js file backend
     }
     if (res.data)
     {
-      console.log("home page",res.data)
+      ////console.log("home page",res.data)
       //1. if not auth, then add para, not auth!
       if (res.data['status']=='NA')
       {
@@ -125,7 +125,7 @@ const Home = () => {
         }
         else
         {
-          navigate('/')
+          navigate('/PatientView/')
         }
       }
     }
@@ -134,8 +134,11 @@ const Home = () => {
   return <>
     <Grid container justifyContent='center'>
       <Grid item sm={10}>
-        <h1>Dashboard</h1>
-        <hr />
+        <h1>Welcome!</h1>
+        <p>A patient data management system is a software system developed primarily to facilitate the verification of the patients’ documents while buying medicines or making medical claims.
+The focus of this project is to develop a portal that facilitates the secure exchange and verification of electronic health records. 
+</p>
+<hr />
         {useremail == '' && <p>You are not logged in</p>}
         {status1 == 'NA' && <p>You are not authenticated</p>}
         {status1 == 'RM' && <p>You have been removed from the system</p>}

@@ -78,9 +78,8 @@ class UserRegistrationView(APIView):
             return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
         walletserializer.save()
         return Response({'token':token, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED) #also returned user
-    except Exception as e:
-        print(e)
-        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response(data = "Error",status=status.HTTP_400_BAD_REQUEST)
 
 class UserLoginView(APIView):
   renderer_classes = [UserRenderer]
@@ -98,7 +97,7 @@ class UserLoginView(APIView):
         else:
             return Response({'errors':{'non_field_errors':['Email or Password is not Valid']}}, status=status.HTTP_404_NOT_FOUND)
     except:
-        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Error",status=status.HTTP_400_BAD_REQUEST)
 class UserProfileView(APIView):
   renderer_classes = [UserRenderer]
   #permission_classes = [IsAuthenticated]
@@ -109,7 +108,7 @@ class UserProfileView(APIView):
         user = User.objects.get(id = serializer.data['id'])
         return Response({'email':user.email, 'name':user.name, 'role':user.role, 'address':user.address, 'contact':user.contact, 'vAadhar':user.vAadhar, 'healthLicense':user.healthLicense, 'description':user.description, 'location':user.location, 'status':user.status, 'image1Path':user.image1Path, 'image2Path':user.image2Path}, status=status.HTTP_200_OK)
     except:
-        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
+        return Response(data = "Error",status=status.HTTP_400_BAD_REQUEST)
 
 class UserChangePasswordView(APIView):
     def post(self, request, format=None):
@@ -137,7 +136,7 @@ class UserChangePasswordView(APIView):
             existing_user_record.save(update_fields=['name', 'address', 'contact', 'vAadhar', 'healthLicense', 'description', 'location', 'image1Path', 'image2Path'])
             return Response(data = "Success", status=status.HTTP_201_CREATED)
         except:
-            return Response("Error",status=status.HTTP_400_BAD_REQUEST)
+            return Response(data = "Error",status=status.HTTP_400_BAD_REQUEST)
 
 
 

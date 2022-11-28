@@ -1,6 +1,6 @@
 const storeToken = (value) => {
     if (value) {
-        console.log("Stored token")
+        ////console.log("Stored token")
         const {access, refresh} = value
         localStorage.setItem('access_token', access)
         //localStorage.setItem('refresh_token', refresh)
@@ -9,7 +9,7 @@ const storeToken = (value) => {
 
 const storeUser = (value) => {
     if (value) {
-        console.log("Stored user")
+        ////console.log("Stored user")
         const {name, email, _} = value
         localStorage.setItem('username', name)
         localStorage.setItem('useremail', email)
