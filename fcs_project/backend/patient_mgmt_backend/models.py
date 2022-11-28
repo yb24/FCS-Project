@@ -80,7 +80,7 @@ class User(AbstractBaseUser):
   role=models.CharField(max_length=50, choices=roleChoices, default='PT')
   address=models.CharField(max_length=300, default='none')
   contact=models.CharField(max_length=15, default='none')
-  vAadhar=models.CharField(max_length=50, default='none')
+  vAadhar=models.CharField(max_length=100, default='none')
   healthLicense=models.CharField(max_length=200, default='none')
   description=models.CharField(max_length=500, default='none')
   location=models.CharField(max_length=200, default='none')

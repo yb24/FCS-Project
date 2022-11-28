@@ -69,7 +69,7 @@ class UserRegistrationView(APIView):
         walletserializer.save()
         return Response({'token':token, 'msg':'Registration Successful'}, status=status.HTTP_201_CREATED) #also returned user
     except:
-        return Response("Error",status=status.HTTP_400_BAD_REQUEST)
+        return Response(data="Error",status=status.HTTP_400_BAD_REQUEST)
 
 class UserLoginView(APIView):
   renderer_classes = [UserRenderer]
@@ -108,7 +108,7 @@ class UserChangePasswordView(APIView):
             #1. check if password matches with received password 
             if not existing_user_record.check_password(request.data['actualData']['password']):
                 # print("wrong password!")
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(data="wrong password", status=status.HTTP_400_BAD_REQUEST)
 
             existing_user_record.name = request.data['actualData']['name']
             existing_user_record.address = request.data['actualData']['address']
@@ -123,7 +123,7 @@ class UserChangePasswordView(APIView):
             existing_user_record.save(update_fields=['name', 'address', 'contact', 'vAadhar', 'healthLicense', 'description', 'location', 'image1Path', 'image2Path'])
             return Response(data = "Success", status=status.HTTP_201_CREATED)
         except:
-            return Response("Error",status=status.HTTP_400_BAD_REQUEST)
+            return Response(data="Error",status=status.HTTP_400_BAD_REQUEST)
 
 
 

@@ -13,7 +13,10 @@ function SharedDocuments(){
   var role = ''
   useEffect(() => {
     if(!access_token)
+    {
+      navigate("../../")
       return;
+    }
       axios({
         method: "POST",
         url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -21,25 +24,29 @@ function SharedDocuments(){
             token: access_token,
         }
       }).then((response)=>{
-          console.log("role is",response.data.role)
+          //console.log("role is",response.data.role)
           role = response.data.role
           if (response.data.userStatus!="AU")
           {
               navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/HealthcareProfessioanlView/SharedDocuments' && !(role=="HP" || role=="HS"))
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/HealthcareProfessioanlView/SharedDocuments'.toLowerCase() && !(role=="HP" || role=="AD"))
           {
             navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/PatientView/SharedDocuments' && role!="PT")
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/HospitalView/SharedDocuments'.toLowerCase() && !(role=="HS" || role=="AD"))
           {
             navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/PharmacyView/SharedDocuments' && role!="PH")
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PatientView/SharedDocuments'.toLowerCase() && !(role=="PT" || role=="AD"))
           {
             navigate("../../")
           }
-          else if(window.location.href=='http://localhost:3000/InsuranceFirmView/SharedDocuments' && role!="IF")
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PharmacyView/SharedDocuments'.toLowerCase() && !(role=="PH" || role=="AD"))
+          {
+            navigate("../../")
+          }
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/InsuranceFirmView/SharedDocuments'.toLowerCase() && !(role=="IF" || role=="AD"))
           {
             navigate("../../")
           }
@@ -62,7 +69,7 @@ function SharedDocuments(){
 
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response.data);
+              //console.log(error.response.data);
               }
           })
         
@@ -123,7 +130,7 @@ function SharedDocuments(){
       
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response.data);
+            //console.log(error.response.data);
           }
         })
       }

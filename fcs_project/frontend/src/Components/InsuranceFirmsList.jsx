@@ -13,7 +13,10 @@ function InsuranceFirmsList(){
      var role = ''
      useEffect(() => {
        if(!access_token)
+       {
+        navigate("../../")
          return;
+       }
          axios({
            method: "POST",
            url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -21,9 +24,9 @@ function InsuranceFirmsList(){
                token: access_token,
            }
          }).then((response)=>{
-             console.log("role is",response.data.role)
+             //console.log("role is",response.data.role)
              role = response.data.role
-             if (role!="PT" || response.data.userStatus!="AU")
+             if (!(role=="PT" || role=="AD") || response.data.userStatus!="AU")
              {
                  navigate("../../")
              }
@@ -42,11 +45,11 @@ function InsuranceFirmsList(){
             }
           }).then((response)=>{
             const data = response.data
-            console.log(data)
+            //console.log(data)
             setInsuranceFirms(data)
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response.data);
+              //console.log(error.response.data);
               }
           })
        

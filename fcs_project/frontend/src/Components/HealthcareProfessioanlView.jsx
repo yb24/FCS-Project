@@ -12,7 +12,10 @@ function HealthcareProfessionalView(){
     var role = ''
     useEffect(() => {
       if(!access_token)
+      {
+        navigate("../")
         return;
+      }
         axios({
           method: "POST",
           url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -20,11 +23,11 @@ function HealthcareProfessionalView(){
               token: access_token,
           }
         }).then((response)=>{
-            console.log("role is",response.data.role)
+            //console.log("role is",response.data.role)
             role = response.data.role
-            if (!(role=="HP" || role=="HS") || response.data.userStatus!="AU")
+            if (!(role=="HP" || role=="HS" || role=="AD") || response.data.userStatus!="AU")
             {
-                console.log("NONONONO")
+                //console.log("NONONONO")
                 navigate("../")
             }
         }).catch((error) => {

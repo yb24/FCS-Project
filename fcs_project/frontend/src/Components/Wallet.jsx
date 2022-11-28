@@ -16,7 +16,10 @@ function Wallet(){
      var role = ''
      useEffect(() => {
        if(!access_token)
+       {
+        navigate("../../")
          return;
+       }
          axios({
            method: "POST",
            url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -24,14 +27,26 @@ function Wallet(){
                token: access_token,
            }
          }).then((response)=>{
-             console.log("role is",response.data.role)
+             //console.log("role is",response.data.role)
              role = response.data.role
-             if (!(role=='PT' || role=='PH' || role=='IF') || response.data.userStatus!="AU")
+             if (!(role=='PT' || role=='PH' || role=='IF' || role=="AD") || response.data.userStatus!="AU")
              {
-                 navigate("../")
+                navigate("../../")
              }
+             else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PatientView/Wallet'.toLowerCase() && !(role=="PT" || role=="AD"))
+            {
+              navigate("../../")
+            }
+            else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PharmacyView/Wallet'.toLowerCase() && !(role=="PH" || role=="AD"))
+            {
+              navigate("../../")
+            }
+            else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/InsuranceFirmView/Wallet'.toLowerCase() && !(role=="IF" || role=="AD"))
+            {
+              navigate("../../")
+            }
          }).catch((error) => {
-             navigate("../")
+            navigate("../../")
          })
      }, []); 
  
@@ -45,11 +60,11 @@ function Wallet(){
             }
           }).then((response)=>{
             const data = response.data
-            console.log(data)
+            //console.log(data)
             setCurrBalance(data)
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response);
+              //console.log(error.response);
               }
           })
     }
@@ -64,12 +79,12 @@ function Wallet(){
             }
           }).then((response)=>{
             const data = response.data
-            console.log(data)
+            //console.log(data)
             GetCurrBalance();
             setResponseMessage("Amount added successfully");
           }).catch((error) => {
             if (error.response) {
-              console.log(error.response);
+              //console.log(error.response);
               setResponseMessage("Amount could not be added.");
               }
           })

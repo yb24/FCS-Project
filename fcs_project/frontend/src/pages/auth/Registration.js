@@ -8,8 +8,8 @@ import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 
 const Registration = () => {
-  const [server_error, setServerError] = useState({})
-  const [client_error, setClientError] = useState({status: false, msg: "", type: ""})
+  //const [server_error, setServerError] = useState({status: false, msg: "", type: ""})
+  const [error, setError] = useState({status: false, msg: "", type: ""})
   const [notes, setNotes] = useState('PT');
   const navigate = useNavigate();
   const [registerUser, {isLoading}] = useRegisterUserMutation()
@@ -19,13 +19,16 @@ const Registration = () => {
   var regName = /\d+$/g; 
   var regEmail=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g;
   var regPhone=/^\d{10}$/;
-  var regVAadhar=/^\d{16}$/;
+  var regVAadhar=/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+  var regVAadhar1=/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+  var regVAadhar2=/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
   var regOtp=/^[A-Z0-9]{8}$/;
+  var regPassword = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
 
   const handleOTP = async () => {
-    console.log("Clicked generate OTP");
+    //console.log("Clicked generate OTP");
     let emailOTP = document.getElementById("email").value;
-    console.log(emailOTP)
+    //console.log(emailOTP)
     //api call to generateOTPRegistration
     const actualData = {
     userEmail: emailOTP,
@@ -33,11 +36,11 @@ const Registration = () => {
     const res = await OtpGenerator(actualData)
     if (res.error)
     {
-      console.log(res.error.data.errors) //from renderers.js file backend
+      //console.log(res.error.data.errors) //from renderers.js file backend
     }
     if (res.data)
     {
-      console.log(res.data)
+      //console.log(res.data)
     }
   }
   function roleDependentForm() {
@@ -59,7 +62,7 @@ const Registration = () => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     var actualData = {}
-    console.log("ROLE: ", data.get('role'))
+    //console.log("ROLE: ", data.get('role'))
     if (data.get('role')=='PT')
     {
       actualData = {
@@ -75,8 +78,8 @@ const Registration = () => {
         healthLicense: "NA",
         description: "NA",
         location: "NA",
-        image1Path: "NA",
-        image2Path: "NA",
+        image1Path: "www.google.com",
+        image2Path: "www.google.com",
         status: 'NA',
         otp:otp,
       }
@@ -92,7 +95,7 @@ const Registration = () => {
         role: data.get('role'),
         address: data.get('address'),
         contact: data.get('contact'),
-        vAadhar: "0000000000000000",
+        vAadhar: "www.google.com",
         healthLicense: data.get('healthLicense'),
         description: data.get('description'),
         location: data.get('location'),
@@ -117,58 +120,69 @@ const Registration = () => {
         healthLicense: data.get('healthLicense'),
         description: "NA",
         location: "NA",
-        image1Path: "NA",
-        image2Path: "NA",
+        image1Path: "www.google.com",
+        image2Path: "www.google.com",
         status: 'NA',
         otp:otp,
       }
     }
-    console.log(actualData)
+    //console.log(actualData)
     //client side form validation
     //1. valid name - regex check
     if (regName.test(actualData.name))
     {
-      setClientError({ status: true, msg: "Name field is incorrectly filled", type: 'error' })
+      setError({ status: true, msg: "Name field is incorrectly filled", type: 'error' })
       return
     }
     //2. valid email - regex check
     else if (!regEmail.test(actualData.email))
     {
-      setClientError({ status: true, msg: "Email field is incorrectly filled", type: 'error' })
-      return
-    }
-    //3. valid otp - numeric
-    else if (!regOtp.test(actualData.otp))
-    {
-      setClientError({ status: true, msg: "otp field is incorrectly filled", type: 'error' })
+      setError({ status: true, msg: "Email field is incorrectly filled", type: 'error' })
       return
     }
     //4. valid contact - regex check
     else if (!regPhone.test(actualData.contact))
     {
-      setClientError({ status: true, msg: "contact field is incorrectly filled", type: 'error' })
+      setError({ status: true, msg: "contact field is incorrectly filled", type: 'error' })
       return
     }
     //5. valid vaadhar - regex check
     else if (!regVAadhar.test(actualData.vAadhar))
     {
-      setClientError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
+      setError({ status: true, msg: "virtual aadhar field is incorrectly filled", type: 'error' })
       return
     }
-    else
+    else if (!regVAadhar1.test(actualData.image1Path))
     {
-      setClientError({ status: true, msg: "Filled correctly", type: 'success' })
+      setError({ status: true, msg: "image 1 path field is incorrectly filled", type: 'error' })
+      return
+    }
+    else if (!regVAadhar2.test(actualData.image2Path))
+    {
+      setError({ status: true, msg: "image 2 path field is incorrectly filled", type: 'error' })
+      return
+    }
+    //6. valid password
+    else if (!regPassword.test(actualData.password))
+    {
+      setError({ status: true, msg: "password field must have atleast a number and a special character and have 6-16 valid characters", type: 'error' })
+      return
     }
     //empty out error after validation done
     const res = await registerUser(actualData)
+    //console.log("RES", res)
     if (res.error)
     {
-      console.log(res.error.data.errors) //from renderers.js file backend
-      setServerError(res.error.data.errors)
+      ////console.log(res.error.data.errors) //from renderers.js file backend
+      setError({ status: true, msg: res.error.data, type: 'error' })
+    }
+    else
+    {
+      setError({ status: true, msg: "Filled correctly", type: 'success' })
     }
     if (res.data)
     {
-      console.log(res.data)
+      //console.log(res.data)
       //save token
       storeToken(res.data.token)
       //storeUser(actualData)
@@ -207,7 +221,6 @@ const Registration = () => {
   return <>
     <Box style={{'overflow' : 'scroll', 'height': '75vh'}} component='form' noValidate sx={{ mt: 1 }} id='registration-form' onSubmit={handleSubmit}>
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='name' name='name' label='Name' />
-      {server_error.name ? <Typography>{server_error.name[0]}</Typography> : ""}
       <div>
         <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='email' name='email' label='Email Address' />
         <Button variant='contained' color='warning' size='large' onClick={handleOTP} sx={{ mt: 8 }}>Verify Email</Button>
@@ -226,7 +239,6 @@ const Registration = () => {
                   onChange={(input) => setOtp(input)}
           />
       </div>
-      {server_error.email ? <Typography>{server_error.email[0]}</Typography> : ""}
       <select id='role' name='role' onChange={()=>roleDependentForm()}>
         <option value="PT">Patient</option>
         <option value="HP">Healthcare Professional</option>
@@ -258,16 +270,14 @@ const Registration = () => {
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='healthLicense' name='healthLicense' label='healthLicense' />
       </div>}
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='password' name='password' label='Password' type='password' />
-      {server_error.password ? <Typography>{server_error.password[0]}</Typography> : ""}
+      
       <TextField margin='normal' required inputProps={{ maxLength: 100 }} fullWidth id='password2' name='password2' label='Confirm Password' type='password' />
-      {server_error.password2 ? <Typography>{server_error.password2[0]}</Typography> : ""}
-      <FormControlLabel control={<Checkbox value={true} color="primary" name="tc" id="tc" />} label="I agree to term and condition." />
-      {server_error.tc ? <Typography>{server_error.tc[0]}</Typography> : ""}
+      
+      <FormControlLabel control={<Checkbox value={true} color="primary" name="tc" id="tc" />} label="I agree to standard terms and conditions" />
       <Box textAlign='center'>
         <Button type='submit' variant='contained' sx={{ mt: 3, mb: 2, px: 5 }}>Join</Button>
       </Box>
-      {server_error.non_field_errors ? <Alert severity='error'>{server_error.non_field_errors[0]}</Alert> : ""}
-      {client_error.status ? <Alert severity={client_error.type}>{client_error.msg}</Alert> : ''}
+      {error.status ? <Alert severity={error.type}>{error.msg}</Alert> : ""}
     </Box>
   </>;
 };

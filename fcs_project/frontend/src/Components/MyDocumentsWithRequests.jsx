@@ -22,7 +22,10 @@ function MyDocumentsWithRequests(){
      var role = ''
      useEffect(() => {
        if(!access_token)
+       {
+        navigate("../../")
          return;
+       }
          axios({
            method: "POST",
            url:`${process.env.REACT_APP_BACKEND}/get_role`,
@@ -30,18 +33,18 @@ function MyDocumentsWithRequests(){
                token: access_token,
            }
          }).then((response)=>{
-             console.log("role is",response.data.role)
+             //console.log("role is",response.data.role)
              role = response.data.role
              if (response.data.userStatus!="AU")
              {
                  navigate("../../")
              }
         
-             else if(window.location.href=='http://localhost:3000/HospitalView/MyDocuments' && role!="HS")
+             else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/HospitalView/MyDocuments'.toLowerCase() && !(role=="HS" || role=="AD"))
              {
                navigate("../../")
              }
-             else if(window.location.href=='http://localhost:3000/HealthcareProfessionalView/MyDocuments' && role!="HP")
+             else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/HealthcareProfessionalView/MyDocuments'.toLowerCase() && !(role=="HP" || role=="AD"))
              {
                navigate("../../")
              }
@@ -69,11 +72,11 @@ function MyDocumentsWithRequests(){
         }
       }).then((response)=>{
         const data = response.data
-        console.log(data)
+        //console.log(data)
         setMyDocuments(data)
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
+          //console.log(error.response);
 
           }
       })
@@ -91,7 +94,7 @@ function MyDocumentsWithRequests(){
           setDocumentRequests(data)
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response.data);
+            //console.log(error.response.data);
             setResponseMessage(error.response.data)
             }
         })
@@ -116,12 +119,12 @@ function MyDocumentsWithRequests(){
             reportID: report_id,
         }
       }).then((response)=>{
-        console.log(response)
+        //console.log(response)
         setResponseMessage("File deleted successfully!")
         FetchMyDocuments()
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
+          //console.log(error.response);
           setResponseMessage("File could not be deleted due to some error.")
           }
       })
@@ -156,12 +159,12 @@ function MyDocumentsWithRequests(){
         }
       }).then((response)=>{
         const data = response.data
-        console.log(data)
+        //console.log(data)
         setResponseMessage("File uploaded successfully!")
         FetchMyDocuments()
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
+          //console.log(error.response);
           setResponseMessage("Error occurred due to unsupported file type, size limit, or unauthorized access.")
           }
       })
@@ -217,7 +220,7 @@ function MyDocumentsWithRequests(){
         setOpen(false);
       };
       const handleDialog=(report)=>{
-        console.log(report)
+        //console.log(report)
         if(report.length==0) return;
         setShowDialog(true);
         handleClickOpen();
@@ -239,12 +242,12 @@ function MyDocumentsWithRequests(){
           }
 
         }).then((response)=>{
-          console.log(response)
+          //console.log(response)
           setResponseMessage("File shared successfully!")
           FetchDocumentRequests();
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            //console.log(error.response);
             setResponseMessage("File could not be shared due to some error.")
             }
         })
@@ -308,7 +311,7 @@ function MyDocumentsWithRequests(){
       
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response.data);
+            //console.log(error.response.data);
            
           }
         
