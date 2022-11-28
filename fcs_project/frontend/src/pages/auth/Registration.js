@@ -20,6 +20,7 @@ const Registration = () => {
   var regEmail=/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g;
   var regPhone=/^\d{10}$/;
   var regVAadhar=/^\d{16}$/;
+  var regOtp=/^[A-Z0-9]{8}$/;
 
   const handleOTP = async () => {
     console.log("Clicked generate OTP");
@@ -137,7 +138,7 @@ const Registration = () => {
       return
     }
     //3. valid otp - numeric
-    else if (isNaN(actualData.otp))
+    else if (!regOtp.test(actualData.otp))
     {
       setClientError({ status: true, msg: "otp field is incorrectly filled", type: 'error' })
       return
