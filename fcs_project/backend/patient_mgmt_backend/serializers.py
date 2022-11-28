@@ -61,12 +61,12 @@ class ReactSerializer(serializers.ModelSerializer):
 class UploadRecordsSerializer(serializers.ModelSerializer):
     class Meta:
         model = UploadRecords
-        fields = ['id','userID','docLink','docType']
+        fields = ['id','userID','docLink','docType','isVerified','fileHash']
 
 class ShareRecordsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShareRecords
-        fields = ['id', 'userID','receiverEmail', 'reportID', 'billMade', 'docLink', 'docType']
+        fields = ['id', 'userID','receiverEmail', 'reportID', 'billMade', 'docLink', 'docType', 'isVerified', 'fileHash']
 
 class PaymentRecordsSerializer(serializers.ModelSerializer):
     class Meta:

@@ -148,6 +148,7 @@ function MakeBill(){
       const sharedDocumentsColumns = [
         { field: 'type', headerName: 'Type of Document', width: 300 },
         { field: 'doc', headerName: 'Document', width:300 },
+        { field: 'isVerified', headerName: 'Verification status', width:300 },
         { field: 'sharedBy', headerName: 'Shared By', width:300 },
         { field: 'billMade', headerName: 'Bill Made', width:300 },
       ];

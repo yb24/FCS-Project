@@ -270,7 +270,9 @@ function MyDocumentsWithRequests(){
       const myDocumentsColumns = [
         {field: 'userID', headerName: "User ID", width:300},
         { field: 'docType', headerName: 'Type of Document', width: 300 },
+        { field: 'isVerified', headerName: 'Verification status', width:300 },
         { field: 'docLink', headerName: 'Document', width:300 },
+
       ];
       const documentRequestColumns = [
         {field: 'name', headerName: "Name", width:300},

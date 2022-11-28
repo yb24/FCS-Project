@@ -124,7 +124,8 @@ class UploadRecords(models.Model):
     userID = models.CharField(max_length=100)
     docLink = models.CharField(max_length=200)
     docType = models.CharField(max_length=30)
-
+    isVerified = models.CharField(max_length=30)
+    fileHash = models.CharField(max_length=1000)
 
 class PaymentRecords(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -143,6 +144,9 @@ class ShareRecords(models.Model):
     billMade = models.CharField(max_length=30)
     docLink = models.CharField(max_length=200)
     docType = models.CharField(max_length=30)
+    isVerified = models.CharField(max_length=30)
+    fileHash = models.CharField(max_length=1000)
+    
 
 class OtpTable(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

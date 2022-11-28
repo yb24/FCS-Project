@@ -178,5 +178,5 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 # MEDIA_ROOT = os.path.join(BASE_DIR, '/mediafiles')
-MEDIA_ROOT = '/home/aryan/Desktop/clone/FCS-Project/fcs_project/backend/mediafiles'
+MEDIA_ROOT = os.getenv('STORAGE_PATH')
 MEDIA_URL = '/mediafiles/'

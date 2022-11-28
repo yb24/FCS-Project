@@ -13,6 +13,7 @@ from .models import *
 from django.db.models import Q
 from dateutil import parser
 import math
+import requests
 import random
 import smtplib
 import time
@@ -35,7 +36,7 @@ import datetime
 from django.utils import timezone
 import logging
 
-logging_file = os.getenv('STORAGE_PATH')+'post_images/logfile.log'
+logging_file = os.getenv('STORAGE_PATH')+'/post_images/logfile.log'
 logging.basicConfig(filename=logging_file, format='%(asctime)s %(message)s')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -181,6 +182,7 @@ def insert_upload_records(request):
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
         # logger.info("by token: " + str(request.data["token"]))
         authenticated, userID = verify_user(request.data["token"])
+        role = getUserRole(userID)
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
         
@@ -199,14 +201,32 @@ def insert_upload_records(request):
         posts_serializer = PostSerializer(data=request.data)
         if posts_serializer.is_valid() == False:
             return Response("Error while insertion (file size too big or invalid file type)", status=status.HTTP_400_BAD_REQUEST)
-        posts_serializer.save()  
+        posts_serializer.save()
+
+        img = Post.objects.get(title=request.data['title'])
+        file_path = os.getenv('STORAGE_PATH')+'/'+str(img.image)
+        hash_file = generateDocumentHash(file_path)
+        current_ipfs_list = get_ipfs()
+        cid_file = uploadIPFS({'signature':hash_file})
+        record['fileHash'] = str(hash_file)
+        record['isVerified'] = "Yes"
+
+        if role == 'PT':
+            if cid_file not in current_ipfs_list:
+                record['isVerified'] = "No"
+            else:
+                record_verifiability = UploadRecords.objects.filter(fileHash=str(hash_file)).values_list('isVerified', flat=True)[0]
+                print("Doc verifiable: ", record_verifiability)
+                if record_verifiability == "No":
+                    record['isVerified'] = "No"
 
         serializer = UploadRecordsSerializer(data=record)
         if serializer.is_valid():   
             serializer.save()
             return Response(data = "Success", status=status.HTTP_201_CREATED)
         return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
-    except:
+    except Exception as e:
+        print(e)
         return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -330,7 +350,7 @@ def add_money(request):
         logger.info("add_money api called")
         if "token" not in request.data or "amount" not in request.data:
             return Response("Missing Parameters", status=status.HTTP_404_NOT_FOUND)
-        logger.info("by token: " + str(request.data["token"]))
+        logger.info("by token: " + str(request.data["token"]) + "amount: " + str(request.data["amount"]))
         authenticated, userID = verify_user(request.data["token"])
         if not authenticated:
             return Response("Unauthorized User", status=status.HTTP_400_BAD_REQUEST)
@@ -381,7 +401,9 @@ def share_document(request):
         billMade = "No"
         docLink = UploadRecords.objects.filter(id=reportID).values_list('docLink', flat=True)
         docType = UploadRecords.objects.filter(id=reportID).values_list('docType', flat=True)
-        to_be_inserted = {"userID":userID, "receiverEmail":receiverEmail, "reportID": reportID, "billMade":billMade, "docLink":docLink[0], "docType":docType[0]}
+        isVerified = UploadRecords.objects.filter(id=reportID).values_list('isVerified', flat=True)
+        fileHash = UploadRecords.objects.filter(id=reportID).values_list('fileHash', flat=True)
+        to_be_inserted = {"userID":userID, "receiverEmail":receiverEmail, "reportID": reportID, "billMade":billMade, "docLink":docLink[0], "docType":docType[0],"isVerified":isVerified[0],"fileHash":fileHash[0]}
         # print(to_be_inserted)
 
         if "requestID" in request.data and request.data["requestID"] != "":
@@ -399,7 +421,8 @@ def share_document(request):
             serializer.save()
             return Response(data = "Success", status=status.HTTP_201_CREATED)
         return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
-    except:
+    except Exception as e:
+        print(e)
         return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -486,7 +509,7 @@ def display_shared_documents(request):
         user_email = User.objects.filter(id=userID).values_list('email', flat=True)
         if not user_email:
             return Response("No user found", status=status.HTTP_400_BAD_REQUEST)
-        shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0]).values('id', 'userID', 'docType', 'docLink', 'billMade')
+        shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0]).values('id', 'userID', 'docType', 'docLink', 'billMade','isVerified','fileHash')
         return_records = []
         for records in list(shared_records_list):
             new_rec = dict()
@@ -495,6 +518,8 @@ def display_shared_documents(request):
             new_rec['doc'] = records['docLink']
             new_rec['shared_by'] = User.objects.filter(id=records['userID']).values_list('email', flat=True)[0]
             new_rec['billMade'] = records['billMade']
+            new_rec['isVerified'] = records['isVerified']
+            new_rec['fileHash'] = records['fileHash']
             return_records.append(new_rec) 
         return Response(data = return_records, status=status.HTTP_201_CREATED)
     except:
@@ -514,7 +539,7 @@ def display_unmade_bills(request):
         user_email = User.objects.filter(id=userID).values_list('email', flat=True)
         role = getUserRole(userID)
         if role == "PH":
-            shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType = "prescription", billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade')
+            shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType = "prescription", billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade','isVerified','fileHash')
             return_records = []
             for records in list(shared_records_list):
                 new_rec = dict()
@@ -523,10 +548,12 @@ def display_unmade_bills(request):
                 new_rec['doc'] = records['docLink']
                 new_rec['sharedBy'] = User.objects.filter(id=records['userID']).values_list('email', flat=True)[0]
                 new_rec['billMade'] = records['billMade']
+                new_rec['isVerified'] = records['isVerified']
+                new_rec['fileHash'] = records['fileHash']
                 return_records.append(new_rec) 
             return Response(data = return_records, status=status.HTTP_201_CREATED)
         elif role == "IF":
-            shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType__in = ["discharge_summary", "bill"], billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade')
+            shared_records_list = ShareRecords.objects.filter(receiverEmail = user_email[0], docType__in = ["discharge_summary", "bill"], billMade = "No").values('id', 'userID', 'docType', 'docLink', 'billMade','isVerified','fileHash')
             return_records = []
             for records in list(shared_records_list):
                 new_rec = dict()
@@ -535,6 +562,8 @@ def display_unmade_bills(request):
                 new_rec['doc'] = records['docLink']
                 new_rec['sharedBy'] = User.objects.filter(id=records['userID']).values_list('email', flat=True)[0]
                 new_rec['billMade'] = records['billMade']
+                new_rec['isVerified'] = records['isVerified']
+                new_rec['fileHash'] = records['fileHash']
                 return_records.append(new_rec) 
             return Response(data = return_records, status=status.HTTP_201_CREATED)
         else:
@@ -625,6 +654,7 @@ def make_payment(request):
         OtpTable.objects.filter(userID=userID).delete()
         userwallet = UserWallet.objects.get(userID=userID)
         payment = PaymentRecords.objects.get(id = request.data['paymentID'])
+        logger.info("Payment: " + str(payment.amount))
         if payment.amount > userwallet.amount:
             return Response("Wallet has insufficient money", status=status.HTTP_400_BAD_REQUEST)
         payment.status = "Paid"
@@ -812,7 +842,8 @@ def get_file(request):
         if not authorized:
             return Response("Unauthorized Access", status=status.HTTP_400_BAD_REQUEST)
         img = Post.objects.get(title=request.data['file'])
-        file_path = os.getenv('STORAGE_PATH')+str(img.image)
+        print("Image: ", str(img.image))
+        file_path = os.getenv('STORAGE_PATH')+'/'+str(img.image)
         wrapper = FileWrapper(open(file_path, 'rb'))
         content_type = mimetypes.guess_type(str(img.image))[0]  # Use mimetypes to get file type
         response = HttpResponse(wrapper,content_type=content_type)  
@@ -827,5 +858,51 @@ def get_file(request):
 def getUserRole(userID):
     userRole = User.objects.filter(id=userID).values_list('role', flat=True)[0]
     return userRole
+
+def uploadIPFS(data):
+    headers = {
+        'pinata_api_key':os.getenv('PINATA_API_KEY'),
+        'pinata_secret_api_key': os.getenv('PINATA_API_SECRET')
+    }
+    response = requests.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", headers=headers, data=data)
+    if response.status_code != 200:
+        return None
+    return response.json()['IpfsHash']
+
+def check_ipfs(data):
+    headers = {
+        'pinata_api_key':os.getenv('PINATA_API_KEY'),
+        'pinata_secret_api_key': os.getenv('PINATA_API_SECRET')
+    }
+    response = requests.get("https://api.pinata.cloud/data/pinList?status=pinned", headers=headers)
+    documents = response.json()['rows']
+    print("ipfs documents: ", documents)
+    ipfs_hash_list = [str(doc['ipfs_pin_hash']) for doc in documents]
+    if data in ipfs_hash_list:
+        return True
+    return False
+
+def get_ipfs():
+    headers = {
+        'pinata_api_key':os.getenv('PINATA_API_KEY'),
+        'pinata_secret_api_key': os.getenv('PINATA_API_SECRET')
+    }
+    response = requests.get("https://api.pinata.cloud/data/pinList?status=pinned", headers=headers)
+    documents = response.json()['rows']
+    ipfs_hash_list = [str(doc['ipfs_pin_hash']) for doc in documents]
+    return ipfs_hash_list
+
+def generateDocumentHash(path):
+    buffer_size = 65536
+    sha256 = hashlib.sha256()
+    with open(path,'rb') as f:
+        while True:
+            data = f.read(buffer_size)
+            if not data:
+                break
+            sha256.update(data)
+    sha256Hash = sha256.hexdigest()
+    return str(sha256Hash)
+    
 
     
