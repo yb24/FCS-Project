@@ -165,7 +165,7 @@ class PendingDocumentRequests(models.Model):
     userID = models.CharField(max_length=100)
     receiverEmail = models.CharField(max_length=255)
     docType = models.CharField(max_length=30)
-    date = models.CharField(max_length=30)
+    date = models.CharField(max_length=100)
     requestCompleted = models.CharField(max_length=30)
 
 class Post(models.Model):

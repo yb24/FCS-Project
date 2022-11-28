@@ -77,11 +77,11 @@ function InsuranceFirmsList(){
       }
 
     const insurance_firms_columns = [
-        { field: 'name', headerName: 'Name', width: 300 },
-        { field: 'email', headerName: 'Email ID', width:300 },
-        { field: 'location', headerName: 'Location', width:300 },
-        { field: 'description', headerName: 'Description', width:300 },
-        { field: 'contact', headerName: 'Contact Details', width:300 },
+        { field: 'name', headerName: 'Name', width: 600 },
+        { field: 'email', headerName: 'Email ID', width:600 },
+        { field: 'location', headerName: 'Location', width:600 },
+        { field: 'description', headerName: 'Description', width:600 },
+        { field: 'contact', headerName: 'Contact Details', width:600 },
       ];
      
 

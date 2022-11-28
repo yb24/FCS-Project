@@ -5,6 +5,8 @@ import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsBu
 import { getToken } from '../services/localStorageService';
 import {useNavigate} from 'react-router-dom';
 
+
+
 function MyDocumentsWithRequests(){
 
 
@@ -272,17 +274,17 @@ function MyDocumentsWithRequests(){
 
 
       const myDocumentsColumns = [
-        {field: 'userID', headerName: "User ID", width:300},
-        { field: 'docType', headerName: 'Type of Document', width: 300 },
-        { field: 'isVerified', headerName: 'Verification status', width:300 },
-        { field: 'docLink', headerName: 'Document', width:300 },
+        {field: 'userID', headerName: "User ID", width:600},
+        { field: 'docType', headerName: 'Type of Document', width: 600 },
+        { field: 'isVerified', headerName: 'Verification status', width:600 },
+        { field: 'docLink', headerName: 'Document', width:600 },
 
       ];
       const documentRequestColumns = [
-        {field: 'name', headerName: "Name", width:300},
-        { field: 'email', headerName: 'Email ID', width: 300 },
-        { field: 'type', headerName: 'Type of Document', width:300 },
-        { field: 'date', headerName: 'Date', width:300 },
+        {field: 'name', headerName: "Name", width:600},
+        { field: 'email', headerName: 'Email ID', width: 600 },
+        { field: 'type', headerName: 'Type of Document', width:600 },
+        { field: 'date', headerName: 'Date', width:600 },
       ];
 
 
@@ -325,6 +327,7 @@ function MyDocumentsWithRequests(){
 
       }
 
+  
 
 
     return(
@@ -332,6 +335,7 @@ function MyDocumentsWithRequests(){
 
            <div style={{ height: 300, width: '100%' }} >
          Documents List
+      
             <DataGrid 
                 rows={myDocuments}
                 columns={myDocumentsColumns}
@@ -346,6 +350,7 @@ function MyDocumentsWithRequests(){
                 selectionModel={selectionModel}
  
             />
+     
            
 
         </div>
@@ -387,6 +392,7 @@ function MyDocumentsWithRequests(){
             <br></br>
            <div style={{ height: 300, width: '100%' }} >
          Request List
+
             <DataGrid 
                 rows={documentRequests}
                 columns={documentRequestColumns}
@@ -404,6 +410,7 @@ function MyDocumentsWithRequests(){
             <Button variant = "contained" onClick={()=>handleDialog(selectionModel)}>
                   Share Document
             </Button>
+          
 
         </div>
   

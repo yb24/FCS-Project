@@ -98,10 +98,10 @@ function SharedDocuments(){
 
 
       const sharedDocumentsColumns = [
-        { field: 'type', headerName: 'Type of Document', width: 300 },
-        { field: 'doc', headerName: 'Document', width:300 },
-        { field: 'isVerified', headerName: 'Verification status', width:300 },
-        { field: 'shared_by', headerName: 'Shared By', width:300 },
+        { field: 'type', headerName: 'Type of Document', width: 600 },
+        { field: 'doc', headerName: 'Document', width:600 },
+        { field: 'isVerified', headerName: 'Verification status', width:600 },
+        { field: 'shared_by', headerName: 'Shared By', width:600 },
       ];
 
 

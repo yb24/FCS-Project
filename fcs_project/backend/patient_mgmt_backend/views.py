@@ -458,7 +458,8 @@ def request_documents(request):
             serializer.save()
             return Response(data = "Success", status=status.HTTP_201_CREATED)
         return Response("Error while insertion", status=status.HTTP_400_BAD_REQUEST)
-    except:
+    except Exception as e:
+        print(e)
         return Response("Error",status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])

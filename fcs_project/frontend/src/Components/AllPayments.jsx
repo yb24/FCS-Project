@@ -87,10 +87,10 @@ function AllPayments(){
 
 
       const paymentsColumns = [
-        { field: 'payerEmail', headerName: 'Payer Email ID', width: 300 },
-        { field: 'receiverEmail', headerName: 'Receiver Email ID', width:300 },
-        { field: 'amount', headerName: 'Amount', width:300 },
-        { field: 'status', headerName: 'Status', width:300 },
+        { field: 'payerEmail', headerName: 'Payer Email ID', width: 600 },
+        { field: 'receiverEmail', headerName: 'Receiver Email ID', width:600 },
+        { field: 'amount', headerName: 'Amount', width:600 },
+        { field: 'status', headerName: 'Status', width:600 },
       ];
 
 

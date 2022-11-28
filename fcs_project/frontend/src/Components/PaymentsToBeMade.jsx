@@ -182,9 +182,9 @@ function PaymentsToBeMade(){
 
 
       const paymentsColumns = [
-        { field: 'receiverEmail', headerName: 'Email ID of Receiver', width: 300 },
-        { field: 'amount', headerName: 'Bill Amount', width:300 },
-        { field: 'status', headerName: 'Status', width:300 },
+        { field: 'receiverEmail', headerName: 'Email ID of Receiver', width: 600 },
+        { field: 'amount', headerName: 'Bill Amount', width:600 },
+        { field: 'status', headerName: 'Status', width:600 },
       ];
 
 

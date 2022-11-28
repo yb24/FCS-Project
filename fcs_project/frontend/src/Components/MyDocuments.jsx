@@ -244,8 +244,8 @@ function MyDocuments(){
 
       const myDocumentsColumns = [
        
-        { field: 'docType', headerName: 'Type of Document', width: 300 },
-        { field: 'isVerified', headerName: 'Verification status', width:300 },
+        { field: 'docType', headerName: 'Type of Document', width: 600 },
+        { field: 'isVerified', headerName: 'Verification status', width:600 },
         { field: 'docLink', headerName: 'Document', width:600 },
       ];
 
