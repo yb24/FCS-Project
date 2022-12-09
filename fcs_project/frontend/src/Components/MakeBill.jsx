@@ -3,9 +3,42 @@ import axios from 'axios';
 import { DataGrid, GridToolbarExport, GridToolbarContainer, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarDensitySelector } from "@mui/x-data-grid";
 import {Button, InputLabel, MenuItem, FormControl, Select, Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText, TextField} from '@mui/material';
 import { getToken } from '../services/localStorageService';
+import {useNavigate} from 'react-router-dom';
 
 function MakeBill(){
-
+  const navigate = useNavigate();
+  var role = ''
+  useEffect(() => {
+    if(!access_token)
+    {
+      navigate("../../")
+      return;
+    }
+      axios({
+        method: "POST",
+        url:`${process.env.REACT_APP_BACKEND}/get_role`,
+        data:{
+            token: access_token,
+        }
+      }).then((response)=>{
+          ////console.log("role is",response.data.role)
+          role = response.data.role
+          if (!(role=="PH" || role=="IF" || role=="AD") || response.data.userStatus!="AU")
+          {
+              navigate("../../")
+          }
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/PharmacyView/MakeBill'.toLowerCase() && !(role=="PH" || role=="AD"))
+          {
+            navigate("../../")
+          }
+          else if(window.location.href.toLowerCase()==process.env.REACT_APP_FRONTEND+'/InsuranceFirmView/MakeBill'.toLowerCase() && !(role=="IF" || role=="AD"))
+          {
+            navigate("../../")
+          }
+      }).catch((error) => {
+        navigate("../../")
+      })
+  }, []); 
 
     const [sharedDocuments, setSharedDocuments] = useState([])
 
@@ -14,9 +47,7 @@ function MakeBill(){
     const [open, setOpen] = useState(false);
     const [amount, setAmount] = useState(null)
 
-    let {access_token, refresh_token} = getToken()
-    let userID = JSON.parse(window.atob(access_token.split('.')[1]))
-    userID = userID['user_id'] 
+    let {access_token} = getToken()
 
     const FetchSharedDocuments  =()=>{
 
@@ -25,16 +56,14 @@ function MakeBill(){
         url:`${process.env.REACT_APP_BACKEND}/display_unmade_bills`,
         data:{
             token: access_token,
-            userID: userID,
-            role: 'PH'
         }
       }).then((response)=>{
         const data = response.data
-        console.log(data)
+        //console.log(data)
         setSharedDocuments(data)
       }).catch((error) => {
         if (error.response) {
-          console.log(error.response);
+          //console.log(error.response);
           }
       })
     }
@@ -56,7 +85,7 @@ function MakeBill(){
         setOpen(false);
       };
       const handleDialog=(report)=>{
-        console.log(report)
+        //console.log(report)
         if(report.length==0) return;
         setShowDialog(true);
         handleClickOpen();
@@ -79,11 +108,11 @@ function MakeBill(){
 
 
      const MakeBill=(id, sharedByEmail, billAmount)=>{
-        console.log(id, sharedByEmail, billAmount)
+        //console.log(id, sharedByEmail, billAmount)
         if(!id || !sharedByEmail || !billAmount) return;
 
         // id is shareID
-        console.log("harman ludo")
+        //console.log("harman ludo")
         //API call to make 'Bill Made' in payment table 'Yes'
         
 
@@ -94,19 +123,17 @@ function MakeBill(){
           url:`${process.env.REACT_APP_BACKEND}/make_bill`,
           data:{
               token: access_token,
-              userID: userID,
               sharedByEmail : sharedByEmail,
               sharedRecordID: id,
               amount: billAmount,
-              role: 'PH'
           }
         }).then((response)=>{
           const data = response.data
-          console.log(data)
+          //console.log(data)
           FetchSharedDocuments();
         }).catch((error) => {
           if (error.response) {
-            console.log(error.response);
+            //console.log(error.response);
             }
         })
 
@@ -130,12 +157,47 @@ function MakeBill(){
 
 
       const sharedDocumentsColumns = [
-        { field: 'type', headerName: 'Type of Document', width: 300 },
-        { field: 'doc', headerName: 'Document', width:300 },
-        { field: 'sharedBy', headerName: 'Shared By', width:300 },
-        { field: 'billMade', headerName: 'Bill Made', width:300 },
+        { field: 'type', headerName: 'Type of Document', width: 600 },
+        { field: 'doc', headerName: 'Document', width:600 },
+        { field: 'isVerified', headerName: 'Verification status', width:600 },
+        { field: 'sharedBy', headerName: 'Shared By', width:600 },
+        { field: 'billMade', headerName: 'Bill Made', width:600 },
       ];
 
+
+      const handleViewDocument = (selectedRowID) =>{
+
+        if(selectedRowID.length===0) return;
+        let filePath = '';
+        for(let i=0; i<sharedDocuments.length; i++){
+          if(sharedDocuments[i]['id']===selectedRowID[0]){
+            filePath = sharedDocuments[i]['doc']
+            break;
+          }
+        }
+        axios({
+          method: "POST",
+          url:`${process.env.REACT_APP_BACKEND}/get_file`,
+          data:{
+              token: access_token,
+              file:filePath
+          },
+          responseType:'blob',
+        }).then((response)=>{
+          
+          window.open((URL.createObjectURL(response.data)), '_blank')
+      
+        }).catch((error) => {
+          if (error.response) {
+            //console.log(error.response.data);
+          }
+        
+  
+        })
+        
+
+
+      }
 
 
     return(
@@ -155,6 +217,10 @@ function MakeBill(){
                 }}
                 selectionModel={selectionModel}
             />
+
+<Button variant = "contained" onClick={() => handleViewDocument(selectionModel)}>
+                  View Document
+                </Button>
 
         <Button variant = "contained" onClick={()=>handleDialog(selectionModel)}>
                   Make Bill

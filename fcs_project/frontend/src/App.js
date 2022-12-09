@@ -1,4 +1,6 @@
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
+import React, {useState, useEffect} from 'react';
+import axios from 'axios';
 import LoginReg from "./pages/auth/LoginReg";
 import ResetPassword from "./pages/auth/ResetPassword";
 import SendPasswordResetEmail from "./pages/auth/SendPasswordResetEmail";
@@ -25,8 +27,33 @@ import HealthcareProfessionalView from './Components/HealthcareProfessioanlView'
 import PharmacyView from './Components/PharmacyView';
 import InsuranceFirmView from './Components/InsuranceFirmView';
 import Profile from './Components/Profile';
+import RequestDocuments from "./Components/RequestDocuments";
+import { getToken } from "./services/localStorageService";
+import MyDocumentsWithRequests from "./Components/MyDocumentsWithRequests";
+import Wallet from "./Components/Wallet";
+
 
 function App() {
+  // const {access_token} = getToken()
+  // // const [role, setRole] = useState([]);
+  // const role = "PT";
+
+  // useEffect(() => {
+  //   if(!access_token)
+  //     return;
+  //     axios({
+  //       method: "POST",
+  //       url:`${process.env.REACT_APP_BACKEND}/get_role`,
+  //       data:{
+  //           token: access_token,
+  //       }
+  //     }).then((response)=>{
+  //         //console.log(response.data.role)
+  //         // setRole(response.)
+  //     }).catch((error) => {
+  //     })
+  // }, []); 
+
   return (
     <>
       <BrowserRouter>
@@ -37,58 +64,61 @@ function App() {
           </Route>
           {/*<Route path="*" element={<h1>Error 404 Page not found !!</h1>} />*/}
 
-          <Route path="PatientView" >
+          {<Route path="PatientView" >
           <Route index element={<PatientView />} /> 
           <Route path="Profile" element={<Profile />} />
+          <Route path="Wallet" element={<Wallet />} />
           <Route path="HealthcareProfessionals" element={<HealthcareProfessionalsList />} />
           <Route path="Hospitals" element={<HospitalsList />} />
           <Route path="Pharmacies" element={<PharmaciesList />} />
           <Route path="InsuranceFirms" element={<InsuranceFirmsList />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="RequestDocuments" element={<RequestDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
           <Route path="PaymentsToBeMade" element={<PaymentsToBeMade />} />
           <Route path="AllPayments" element={<AllPayments />} />
-        </Route>    
+        </Route>}    
 
         {/* User is Healthcare Professional */}
-        <Route path="HealthcareProfessioanlView" >
+        { <Route path="HealthcareProfessioanlView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
-          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="MyDocuments" element={<MyDocumentsWithRequests />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
-        </Route>  
-
+        </Route> } 
 
         {/* User is Hospital */}
-        <Route path="HospitalView" >
+        {<Route path="HospitalView" >
           <Route index element={<HealthcareProfessionalView />} /> 
           <Route path="Profile" element={<Profile />} />
-          <Route path="MyDocuments" element={<MyDocuments />} />
+          <Route path="MyDocuments" element={<MyDocumentsWithRequests />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
-        </Route>  
+        </Route>  }
 
 
       {/* User is Pharmacy */}
-        <Route path="PharmacyView" >
+      {<Route path="PharmacyView" >
           <Route index element={<PharmacyView />} /> 
           <Route path="Profile" element={<Profile />} />
+          <Route path="Wallet" element={<Wallet />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
           <Route path="MakeBill" element={<MakeBill />} />
           <Route path="AllPayments" element={<AllPayments />} />
-        </Route>  
+        </Route>  }
 
 
       {/* User is Insurance Firm */}
-        <Route path="InsuranceFirmView" >
+      {<Route path="InsuranceFirmView" >
           <Route index element={<InsuranceFirmView />} /> 
+          <Route path="Wallet" element={<Wallet />} />
           <Route path="Profile" element={<Profile />} />
           <Route path="MyDocuments" element={<MyDocuments />} />
           <Route path="SharedDocuments" element={<SharedDocuments />} />
           <Route path="MakeBill" element={<MakeBill />} />
           <Route path="PaymentsToBeMade" element={<PaymentsToBeMade />} />
           <Route path="AllPayments" element={<AllPayments />} />
-        </Route>   
+        </Route>}   
 
         </Routes>
       </BrowserRouter>
